@@ -1,6 +1,6 @@
-# Map portal kit
+# Map overlap template
 
-The template behind every map portal in this repo. Reference build:
+Template 1 of the portal series: one hero map where two measures meet. Reference build:
 `projects/musa-5500-python/assignment-3-evictions-ndvi/overlap/`.
 
 Goal: one lab or project becomes a clean, interactive page in about 15 minutes.
@@ -41,10 +41,10 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 | File | Job |
 |---|---|
 | `assets/style.css` | Colors, fonts, buttons, tooltip (shared by every portal) |
-| `kit/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
-| `kit/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
-| `kit/starter/index.html` | Page skeleton with `{{TOKENS}}` to fill |
-| `kit/portal_export.py` | Turns a GeoDataFrame into the data file |
+| `templates/map-overlap/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
+| `templates/map-overlap/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
+| `templates/map-overlap/starter/index.html` | Page skeleton with `{{TOKENS}}` to fill |
+| `templates/map-overlap/portal_export.py` | Turns a GeoDataFrame into the data file |
 
 ## Data format (`window.PORTAL_DATA`)
 
@@ -59,7 +59,7 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 }
 ```
 
-Make it with `kit/portal_export.py` at the end of the notebook. Keep it under about 1.5 MB.
+Make it with `templates/map-overlap/portal_export.py` at the end of the notebook. Keep it under about 1.5 MB.
 
 ## Config (`window.PORTAL_CONFIG`)
 
@@ -96,7 +96,7 @@ Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.
 1. **Upload** the notebook (and the zip, or just the files it reads) and say: "Use my portal template. A is ..., B is ..."
 2. **Check the data** (2 min): only the years both measures share, no secrets or private paths, notebook numbers recomputed.
 3. **Export** (3 min): `portal_export.py` writes `projects/<course>/<lab>/data/portal-data.js`.
-4. **Fill** (5 min): copy `kit/starter/index.html` to `projects/<course>/<lab>/<view>/index.html`, then fill the tokens and config.
+4. **Fill** (5 min): copy `templates/map-overlap/starter/index.html` to `projects/<course>/<lab>/<view>/index.html`, then fill the tokens and config.
 5. **Preview** (3 min): test it in a browser and share a private preview link.
 6. **Publish** (2 min): add a card to the root `index.html` and a row to `README.md`, write the LinkedIn caption in `posts/`, then commit and push.
 

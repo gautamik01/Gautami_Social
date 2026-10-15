@@ -13,7 +13,7 @@ Live site: https://gautamik01.github.io/Gautami_Social/
 
 ```
 assets/        shared colors, fonts and the D3 library
-kit/           the portal template: layout, behavior, starter page, data exporter (see kit/TEMPLATE.md)
+templates/      portal templates, one folder each (see templates/README.md)
 projects/      one folder per course, one subfolder per lab or project
 posts/         LinkedIn captions
 raw-data/      big original datasets, kept on my computer only (git ignores it)
@@ -21,7 +21,7 @@ raw-data/      big original datasets, kept on my computer only (git ignores it)
 
 ## Making a new portal
 
-Follow `kit/TEMPLATE.md`. In short: export the data with `kit/portal_export.py`,
-copy `kit/starter/index.html` into the project folder, fill in the text and config, preview, then push.
+Pick a template in `templates/` and follow its `TEMPLATE.md`. In Claude, say "use my portal template"
+(the skill text for each template is saved next to it as `SKILL.md`).
 
 Built with AI assistance (Claude) after each assignment was submitted and graded.

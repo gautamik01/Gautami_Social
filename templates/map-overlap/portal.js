@@ -1,7 +1,7 @@
 // Gautami's map-portal kit.
 // One map of places colored by whether two measures (A and B) are both high, plus a scatter "test".
 // A page supplies window.PORTAL_DATA (GeoJSON-like features) and window.PORTAL_CONFIG (names, periods, groups).
-// See kit/TEMPLATE.md for the data format and every config option.
+// See templates/map-overlap/TEMPLATE.md for the data format and every config option.
 (function () {
   "use strict";
   const D = window.PORTAL_DATA, C = window.PORTAL_CONFIG;
