@@ -21,7 +21,7 @@ raw-data/      big original datasets, kept on my computer only (git ignores it)
 
 ## Making a new portal
 
-Pick a template in `templates/` and follow its `TEMPLATE.md`. In Claude, say "use my portal template"
-(the skill text for each template is saved next to it as `SKILL.md`).
+Pick a template in `templates/` (see templates/README.md) and follow its `TEMPLATE.md`.
+In Claude, say "use my Overlap Map template". The skill behind that is backed up in `templates/SKILL.md`.
 
 Built with AI assistance (Claude) after each assignment was submitted and graded.

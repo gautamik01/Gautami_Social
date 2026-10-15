@@ -1,6 +1,6 @@
-# Map overlap template
+# Overlap Map
 
-Template 1 of the portal series: one hero map where two measures meet. Reference build:
+Portal template 1. Say "use my Overlap Map template". One hero map where two measures meet. Reference build:
 `projects/musa-5500-python/assignment-3-evictions-ndvi/overlap/`.
 
 Goal: one lab or project becomes a clean, interactive page in about 15 minutes.
@@ -41,10 +41,10 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 | File | Job |
 |---|---|
 | `assets/style.css` | Colors, fonts, buttons, tooltip (shared by every portal) |
-| `templates/map-overlap/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
-| `templates/map-overlap/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
-| `templates/map-overlap/starter/index.html` | Page skeleton with `{{TOKENS}}` to fill |
-| `templates/map-overlap/portal_export.py` | Turns a GeoDataFrame into the data file |
+| `templates/overlap-map/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
+| `templates/overlap-map/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
+| `templates/overlap-map/starter/index.html` | Page skeleton with `{{TOKENS}}` to fill |
+| `templates/overlap-map/portal_export.py` | Turns a GeoDataFrame into the data file |
 
 ## Data format (`window.PORTAL_DATA`)
 
@@ -59,7 +59,7 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 }
 ```
 
-Make it with `templates/map-overlap/portal_export.py` at the end of the notebook. Keep it under about 1.5 MB.
+Make it with `templates/overlap-map/portal_export.py` at the end of the notebook. Keep it under about 1.5 MB.
 
 ## Config (`window.PORTAL_CONFIG`)
 
@@ -75,11 +75,19 @@ Make it with `templates/map-overlap/portal_export.py` at the end of the notebook
                    codes: ["CODE 1", "CODE 2"] } ] },           // omit groups if B is one number
   context: [ { key: "ren", label: "Renters", unit: "%" }, { key: "rent", label: "Median rent", unit: "$" } ],
   nameFor: p => p.name,                                     // optional; default is "Tract 123.45" from a GEOID
-  colors: { neither: "#e3e8e1", a: "#7fb77e", b: "#f2a35c", both: "#7a2a12" }   // optional per-study treatment
+
+  // Everything below is optional. This is how each study gets its own treatment.
+  colors: { neither: "#e3e8e1", a: "#7fb77e", b: "#f2a35c", both: "#7a2a12",   // overlap colors
+            ramp: ["#fff4e6", "#f2a35c", "#8f2d05"] },                        // used by mode "single"
+  labels: { both: "Hot and bare", a: "Busy", b: "Bare", neither: "Calm" },     // legend and card words
+  cutoff: 0.8,              // what counts as "high": 0.75 = top quarter (default), 0.8 = top fifth
+  mode: "single", single: "a"   // color the map by one measure on a gradient, with a gradient legend
 }
 ```
 
-Ready-made treatments (keep "both" the darkest, and keep A and B far apart in hue):
+Nothing about the look is locked. Each study can set its own colors, legend words, "high" cutoff, and whether the map shows the overlap or one measure. What stays fixed is the layout (map as hero, rails, the test, footer) so the series still feels like one body of work.
+
+Starting points for colors (use them as is, mix them, or make new ones; keep "both" the darkest and A and B far apart in hue):
 
 | Theme | neither | a | b | both |
 |---|---|---|---|---|
@@ -96,7 +104,7 @@ Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.
 1. **Upload** the notebook (and the zip, or just the files it reads) and say: "Use my portal template. A is ..., B is ..."
 2. **Check the data** (2 min): only the years both measures share, no secrets or private paths, notebook numbers recomputed.
 3. **Export** (3 min): `portal_export.py` writes `projects/<course>/<lab>/data/portal-data.js`.
-4. **Fill** (5 min): copy `templates/map-overlap/starter/index.html` to `projects/<course>/<lab>/<view>/index.html`, then fill the tokens and config.
+4. **Fill** (5 min): copy `templates/overlap-map/starter/index.html` to `projects/<course>/<lab>/<view>/index.html`, then fill the tokens and config.
 5. **Preview** (3 min): test it in a browser and share a private preview link.
 6. **Publish** (2 min): add a card to the root `index.html` and a row to `README.md`, write the LinkedIn caption in `posts/`, then commit and push.
 

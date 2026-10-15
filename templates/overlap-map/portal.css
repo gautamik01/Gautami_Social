@@ -55,6 +55,10 @@
 .cell span { font-size: 0.68rem; font-weight: 600; line-height: 1.15; margin-top: 2px; }
 .cell.dark { color: #fff; }
 .cell.light { color: var(--ink); }
+.ramp { width: 220px; }
+.ramp .rname { display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.ramp .rbar { height: 12px; border-radius: 6px; }
+.ramp .rnum { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
 
 /* violations: soft chips, the chosen one is tinted */
 .chips { display: grid; gap: 4px; }
@@ -104,7 +108,7 @@
 .scatter .grid line { stroke: #edf1f6; }
 .scatter .grid path { display: none; }
 .dot { stroke: #fff; stroke-width: 1; transition: cx 0.3s, cy 0.3s, fill 0.2s; cursor: pointer; }
-.qlabel { font-size: 12px; font-weight: 700; fill: var(--both); font-family: var(--body); }
+.qlabel { font-size: 12px; font-weight: 700; font-family: var(--body); }
 .fitlabel { font-size: 12px; font-weight: 600; fill: var(--ink-2); font-family: var(--body); }
 .nums { display: grid; gap: 30px; padding-top: 64px; }
 .num b { display: block; font-family: var(--display); font-weight: 700; font-size: 3.2rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }

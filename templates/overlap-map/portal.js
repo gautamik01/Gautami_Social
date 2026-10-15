@@ -1,7 +1,7 @@
 // Gautami's map-portal kit.
 // One map of places colored by whether two measures (A and B) are both high, plus a scatter "test".
 // A page supplies window.PORTAL_DATA (GeoJSON-like features) and window.PORTAL_CONFIG (names, periods, groups).
-// See templates/map-overlap/TEMPLATE.md for the data format and every config option.
+// See templates/overlap-map/TEMPLATE.md for the data format and every config option.
 (function () {
   "use strict";
   const D = window.PORTAL_DATA, C = window.PORTAL_CONFIG;
@@ -45,7 +45,17 @@
     const root = document.documentElement.style;
     root.setProperty("--ev", C.colors.aDark || C.colors.a); root.setProperty("--vi", C.colors.bDark || C.colors.b); root.setProperty("--both", C.colors.both);
   }
-  const VERDICT = ["Neither is high", A.name + " high", B.name + " high", "Both high"];
+  const L = C.labels || {};
+  const VERDICT = [L.neither || "Neither is high", L.a || A.name + " high", L.b || B.name + " high", L.both || "Both high"];
+  const CUT = C.cutoff != null ? C.cutoff : 0.75;           // "high" = above this quantile (0.75 = top quarter)
+  const SINGLE = C.mode === "single";                        // color by one measure instead of the overlap
+  const SM = C.single === "b" ? "b" : "a";
+  const RAMP = d3.interpolateRgbBasis((C.colors && C.colors.ramp) || ["#e4edf7", "#b7d3ee", "#6fa8dc", "#2f6fb5", "#0b3c78"]);
+  let rampScale = null;
+  const tint = c => { const k = d3.color(COL[c]); k.opacity = c === 0 ? 0.9 : 0.2; return k + ""; };
+  const ink = c => c === 0 ? "#3f4e66" : d3.color(COL[c]).darker(c === 3 ? 0.3 : 1.4) + "";
+  const pill = c => `style="background:${tint(c)};color:${ink(c)}"`;
+  const fillFor = i => SINGLE ? rampScale(SM === "a" ? av[i] : bv[i]) : COL[cls[i]];
   const state = { period: "all", group: "ALL", pin: -1 };
 
   // ---------- values ----------
@@ -73,7 +83,7 @@
   function compute() {
     [av, bv] = series(state.period, state.group);
     aSorted = Array.from(av).sort(d3.ascending); bSorted = Array.from(bv).sort(d3.ascending);
-    qA = d3.quantileSorted(aSorted, 0.75); qB = d3.quantileSorted(bSorted, 0.75);
+    qA = d3.quantileSorted(aSorted, CUT); qB = d3.quantileSorted(bSorted, CUT);
     counts = [0, 0, 0, 0];
     for (let i = 0; i < N; i++) { cls[i] = (av[i] >= qA && av[i] > 0 ? 1 : 0) + (bv[i] >= qB && bv[i] > 0 ? 2 : 0); counts[cls[i]]++; }
   }
@@ -85,7 +95,7 @@
   $("placeHead").textContent = cap(PL.one);
   $("emptyCard").textContent = `Hover or tap any ${PL.one} on the map to see its numbers.`;
   $("lBoth").textContent = `${PL.many} are high on both`;
-  $("lOver").textContent = `of the top ${A.lower} ${PL.many} are also top ${B.lower} ${PL.many}. Chance would give 25%.`;
+  $("lOver").textContent = `of the top ${A.lower} ${PL.many} are also top ${B.lower} ${PL.many}. Chance would give ${Math.round(100 * (1 - CUT))}%.`;
   $("lCorr").textContent = "correlation, where 1 is a perfect match";
   if (!B.groups) $("bBlock").hidden = true;
 
@@ -113,8 +123,8 @@
 
   // ---------- 2 x 2 legend: up = more A, right = more B ----------
   const CELLS = [1, 3, 0, 2];
-  $("biv").innerHTML = `<span class="ylab">More ${A.lower} &rarr;</span><div class="grid">` +
-    CELLS.map(c => `<button type="button" class="cell ${c === 3 ? "dark" : "light"}" data-c="${c}" style="background:${COL[c]}" aria-label="${VERDICT[c]}"><b>0</b><span>${VERDICT[c]}</span></button>`).join("") +
+  if (!SINGLE) $("biv").innerHTML = `<span class="ylab">More ${A.lower} &rarr;</span><div class="grid">` +
+    CELLS.map(c => `<button type="button" class="cell ${d3.hsl(COL[c]).l < 0.5 ? "dark" : "light"}" data-c="${c}" style="background:${COL[c]}" aria-label="${VERDICT[c]}"><b>0</b><span>${VERDICT[c]}</span></button>`).join("") +
     `</div><span class="xlab">More ${B.lower} &rarr;</span>`;
   const cells = Array.from(document.querySelectorAll(".cell"));
   const focusClass = c => paths.attr("opacity", (d, i) => c < 0 || cls[i] === c ? 1 : 0.15);
@@ -130,7 +140,7 @@
   const sx = d3.scaleLinear().range([M.l, SW - M.r]), sy = d3.scaleLinear().range([SH - M.b, M.t]);
   const gGrid = sc.append("g").attr("class", "grid");
   const qBox = sc.append("rect").attr("fill", COL[3]).attr("opacity", 0.07).attr("rx", 6);
-  const qTxt = sc.append("text").attr("class", "qlabel").text("Both high");
+  const qTxt = sc.append("text").attr("class", "qlabel").attr("fill", COL[3]).text(VERDICT[3]);
   const gx = sc.append("g").attr("class", "axis").attr("transform", `translate(0,${SH - M.b})`);
   const gy = sc.append("g").attr("class", "axis").attr("transform", `translate(${M.l},0)`);
   const xTitle = sc.append("text").attr("class", "axis-title").attr("x", (M.l + SW - M.r) / 2).attr("y", SH - 6).attr("text-anchor", "middle");
@@ -156,7 +166,13 @@
   function update(animate) {
     compute();
     const dur = animate ? 400 : 0;
-    paths.transition().duration(dur).attr("fill", (d, i) => COL[cls[i]]);
+    if (SINGLE) {
+      const vals = Array.from(SM === "a" ? aSorted : bSorted), max = Math.max(1, d3.quantileSorted(vals, 0.98));
+      rampScale = d3.scaleSequentialSqrt(RAMP).domain([0, max]).clamp(true);
+      const stops = d3.range(0, 1.01, 0.1).map(t => `${RAMP(t)} ${Math.round(t * 100)}%`).join(",");
+      $("biv").innerHTML = `<div class="ramp"><span class="rname">${(SM === "a" ? A : B).name}</span><div class="rbar" style="background:linear-gradient(90deg,${stops})"></div><div class="rnum"><span>0</span><span>${fmt(Math.round(max))}+</span></div></div>`;
+    }
+    paths.transition().duration(dur).attr("fill", (d, i) => fillFor(i));
 
     let nTop = 0, both = 0;
     for (let i = 0; i < N; i++) if (av[i] >= qA) { nTop++; if (bv[i] >= qB) both++; }
@@ -178,7 +194,7 @@
     gGrid.attr("transform", `translate(${M.l},0)`).call(d3.axisLeft(sy).ticks(5).tickSize(-(SW - M.l - M.r)).tickFormat(""));
     xTitle.text((B.groups ? bLabel(state.group) : B.name) + (B.xSuffix || ""));
     yTitle.text(A.name + (periodText() ? ", " + periodText() : ""));
-    dots.sort((x, y) => cls[x] - cls[y]).transition().duration(dur).attr("cx", i => sx(bv[i])).attr("cy", i => sy(av[i])).attr("fill", i => COL[cls[i]]);
+    dots.sort((x, y) => cls[x] - cls[y]).transition().duration(dur).attr("cx", i => sx(bv[i])).attr("cy", i => sy(av[i])).attr("fill", i => fillFor(i));
     qBox.attr("x", sx(qB)).attr("y", M.t).attr("width", Math.max(0, SW - M.r - sx(qB))).attr("height", Math.max(0, sy(qA) - M.t));
     qTxt.attr("x", sx(qB) + 10).attr("y", M.t + 18);
     drawFit();
@@ -201,7 +217,7 @@
     if (i < 0) { el.hidden = true; return; }
     const p = feats[i].properties, c = cls[i], pa = pctBelow(aSorted, av[i]), pb = pctBelow(bSorted, bv[i]);
     const ctx = (C.context || []).map(x => `<div><dt>${x.label}</dt><dd>${ctxFmt(p[x.key], x.unit)}</dd></div>`).join("");
-    $("popBody").innerHTML = `<p class="tname">${nameFor(p)}${pinned ? ' <span class="pinned">Pinned</span>' : ""}</p><span class="verdict c${c}">${VERDICT[c]}</span>
+    $("popBody").innerHTML = `<p class="tname">${nameFor(p)}${pinned ? ' <span class="pinned">Pinned</span>' : ""}</p><span class="verdict" ${pill(c)}>${VERDICT[c]}</span>
       <div class="meter"><div class="mr"><span>${A.name}</span><b>${fmt(av[i])}</b></div><div class="mbar"><i style="width:${pa}%;background:var(--ev)"></i></div><small>More than ${pa}% of ${PL.many}</small></div>
       <div class="meter"><div class="mr"><span>${B.name}</span><b>${fmt(bv[i])}</b></div><div class="mbar"><i style="width:${pb}%;background:var(--vi)"></i></div><small>More than ${pb}% of ${PL.many}</small></div>
       ${ctx ? `<dl class="ctxl">${ctx}</dl>` : ""}`;
@@ -215,7 +231,7 @@
     hoverI = i; if (state.pin < 0) card(i, false);
     hlPath.attr("d", geo(feats[i]));
     ringH.style("display", null).attr("cx", sx(bv[i])).attr("cy", sy(av[i]));
-    tip.innerHTML = `<b>${nameFor(feats[i].properties)}</b><br><span class="verdict c${cls[i]}" style="margin:4px 0 6px">${VERDICT[cls[i]]}</span><div class="row"><span>${A.name}</span><span class="num">${fmt(av[i])}</span></div><div class="row"><span>${B.name}</span><span class="num">${fmt(bv[i])}</span></div>`;
+    tip.innerHTML = `<b>${nameFor(feats[i].properties)}</b><br><span class="verdict" style="margin:4px 0 6px;background:${tint(cls[i])};color:${ink(cls[i])}">${VERDICT[cls[i]]}</span><div class="row"><span>${A.name}</span><span class="num">${fmt(av[i])}</span></div><div class="row"><span>${B.name}</span><span class="num">${fmt(bv[i])}</span></div>`;
     tip.classList.add("on");
     if (evt) moveTip(evt.clientX, evt.clientY);
   }
