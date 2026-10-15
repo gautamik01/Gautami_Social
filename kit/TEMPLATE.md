@@ -74,9 +74,19 @@ Make it with `kit/portal_export.py` at the end of the notebook. Keep it under ab
        groups: [ { name: "Leaks and plumbing", icon: "drop", desc: "shown on hover",
                    codes: ["CODE 1", "CODE 2"] } ] },           // omit groups if B is one number
   context: [ { key: "ren", label: "Renters", unit: "%" }, { key: "rent", label: "Median rent", unit: "$" } ],
-  nameFor: p => p.name                                      // optional; default is "Tract 123.45" from a GEOID
+  nameFor: p => p.name,                                     // optional; default is "Tract 123.45" from a GEOID
+  colors: { neither: "#e3e8e1", a: "#7fb77e", b: "#f2a35c", both: "#7a2a12" }   // optional per-study treatment
 }
 ```
+
+Ready-made treatments (keep "both" the darkest, and keep A and B far apart in hue):
+
+| Theme | neither | a | b | both |
+|---|---|---|---|---|
+| Housing (default) | `#dfe5ee` | `#6fa8dc` | `#f2a35c` | `#5a1a63` |
+| Green and heat | `#e3e8e1` | `#7fb77e` | `#f2a35c` | `#7a2a12` |
+| Water and flooding | `#e1e8ee` | `#5fb3c9` | `#c9a26b` | `#1f3f66` |
+| Transit and access | `#e6e3ee` | `#8b7fd1` | `#f0b44c` | `#2e2a5c` |
 
 Icons for groups: `layers`, `drop`, `bolt`, `home`, `tree`, `sun`, `bus`, `people`, `dollar`, `all`.
 Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.

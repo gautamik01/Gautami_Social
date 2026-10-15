@@ -39,7 +39,12 @@
   const bLabel = k => k === "ALL" ? (B.allName || "All " + B.lower) : GROUPS[k].name;
   const nameFor = C.nameFor || (p => p.name || ("Tract " + parseInt(p.id.slice(5, 9), 10) + (p.id.slice(9, 11) === "00" ? "" : "." + p.id.slice(9, 11))));
 
-  const COL = ["#dfe5ee", "#6fa8dc", "#f2a35c", "#5a1a63"];   // neither, A high, B high, both high
+  // neither, A high, B high, both high. A page can swap these for its own treatment (config.colors).
+  const COL = C.colors ? [C.colors.neither, C.colors.a, C.colors.b, C.colors.both] : ["#dfe5ee", "#6fa8dc", "#f2a35c", "#5a1a63"];
+  if (C.colors) {
+    const root = document.documentElement.style;
+    root.setProperty("--ev", C.colors.aDark || C.colors.a); root.setProperty("--vi", C.colors.bDark || C.colors.b); root.setProperty("--both", C.colors.both);
+  }
   const VERDICT = ["Neither is high", A.name + " high", B.name + " high", "Both high"];
   const state = { period: "all", group: "ALL", pin: -1 };
 
