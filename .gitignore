@@ -1,0 +1,19 @@
+# Big original data stays on your computer only
+raw-data/
+
+# Jupyter and system junk
+.ipynb_checkpoints/
+__pycache__/
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# Secrets (never commit these)
+.env
+*.key
+secrets*
+
+# Big files GitHub rejects (over 100 MB) or that don't belong online
+*.zip
+posts/*.mp4
+posts/*.mov

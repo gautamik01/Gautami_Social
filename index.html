@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gautami Kasat: Interactive Portals</title>
+<meta name="description" content="Interactive maps and data stories from urban spatial analytics coursework at Penn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .list { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 8px; }
+  .card { display: block; text-decoration: none; color: inherit; transition: border-color 0.15s; }
+  .card:hover { border-color: #3a5575; }
+  .card h2 { margin-bottom: 6px; }
+  .card p { margin: 0; color: var(--ink-2); font-size: 0.92rem; }
+  .card .tags { margin-top: 12px; color: var(--muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<header class="site-head wrap">
+  <p class="byline">Gautami Kasat. Architecture, urbanism, spatial data.</p>
+  <h1>Interactive portals from my coursework</h1>
+  <p class="lede">Each one starts as a class assignment and gets rebuilt as something you can click through.</p>
+</header>
+<main class="wrap">
+  <div class="list">
+    <a class="panel card" href="projects/musa-5500-python/assignment-3-evictions-ndvi/">
+      <h2>Evictions and building violations in Philadelphia</h2>
+      <p>Two linked maps and a year slider showing how eviction counts and housing code violations overlap across census tracts.</p>
+      <div class="tags">MUSA 5500, Python</div>
+    </a>
+  </div>
+</main>
+<footer class="site-foot wrap"><p>Built with AI assistance after each assignment was submitted and graded.</p></footer>
+</body>
+</html>

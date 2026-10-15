@@ -1,0 +1,109 @@
+/* Shared look for every portal in this repo.
+   Change a token here and all portals update together. */
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0f17;
+  --panel: #0f1722;
+  --panel-2: #142030;
+  --line: #223246;
+  --ink: #e9eff8;
+  --ink-2: #a3b3c8;
+  --muted: #7b8da6;
+  --ev: #3fd0c9;      /* evictions hue */
+  --vi: #f59a3b;      /* violations hue */
+  --focus: #8ab4ff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  background-image:
+    radial-gradient(1200px 500px at 85% -10%, rgba(63, 208, 201, 0.07), transparent 60%),
+    radial-gradient(900px 500px at 5% 0%, rgba(245, 154, 59, 0.05), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+a { color: var(--ev); text-underline-offset: 3px; }
+a:hover { color: #9ff3ee; }
+
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+/* ---------- header ---------- */
+.site-head { padding: 36px 0 18px; }
+.site-head .byline { color: var(--muted); font-size: 0.9rem; margin: 0 0 10px; }
+.site-head h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+.site-head .lede { color: var(--ink-2); max-width: 62ch; margin: 0; font-size: 1.05rem; }
+
+/* ---------- panels ---------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.panel h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 2px;
+  letter-spacing: -0.01em;
+}
+.panel .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 10px; }
+
+/* ---------- tooltip ---------- */
+.tip {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  background: #0d1520ee;
+  border: 1px solid #33496a;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  max-width: 240px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.08s;
+}
+.tip.on { opacity: 1; }
+.tip b { font-family: var(--display); font-weight: 600; font-size: 0.95rem; }
+.tip .row { display: flex; justify-content: space-between; gap: 14px; }
+.tip .row span:first-child { color: var(--ink-2); }
+.tip .num { font-variant-numeric: tabular-nums; }
+
+/* ---------- footer ---------- */
+.site-foot { padding: 28px 0 56px; color: var(--muted); font-size: 0.88rem; }
+.site-foot p { max-width: 78ch; margin: 0 0 10px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

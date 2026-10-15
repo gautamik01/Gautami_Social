@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evictions and Building Violations in Philadelphia</title>
+<meta name="description" content="Interactive maps of eviction counts and building code violations across Philadelphia census tracts. Move the year slider, pick a violation type, and compare both maps.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+<style>
+  /* ---------- controls ---------- */
+  .controls {
+    display: grid;
+    grid-template-columns: auto 1fr minmax(220px, 320px);
+    gap: 14px 28px;
+    align-items: end;
+    margin: 8px 0 14px;
+  }
+  .ctl > label, .ctl > .lbl { display: block; font-size: 0.82rem; color: var(--ink-2); margin-bottom: 6px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label {
+    padding: 8px 13px; font-size: 0.88rem; cursor: pointer; color: var(--ink-2);
+    border-right: 1px solid var(--line); user-select: none; margin: 0;
+  }
+  .seg label:last-of-type { border-right: 0; }
+  .seg input:checked + label { background: #17384a; color: var(--ink); }
+  .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+  .yearbox { display: flex; align-items: center; gap: 12px; }
+  .yearbox output {
+    font-family: var(--display); font-weight: 600; font-size: 1.5rem; min-width: 3.3ch;
+    font-variant-numeric: tabular-nums;
+  }
+  .yearbox[aria-disabled="true"] { opacity: 0.38; }
+  input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 28px; background: transparent; min-width: 120px; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--line); border-radius: 2px; }
+  input[type=range]::-moz-range-track { height: 4px; background: var(--line); border-radius: 2px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--ev); border: 2px solid var(--bg); }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ev); border: 2px solid var(--bg); }
+  .play {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 0.88rem; cursor: pointer; white-space: nowrap;
+  }
+  .play:hover { border-color: #3a5575; }
+  .play[aria-pressed="true"] { background: #17384a; }
+
+  select {
+    width: 100%; background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 0.9rem;
+  }
+  .hint { color: var(--muted); font-size: 0.84rem; min-height: 1.3em; margin: 0 0 14px; }
+
+  /* ---------- maps ---------- */
+  .maps { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .map-panel svg { display: block; width: 100%; height: auto; border-radius: 6px; background: #080c13; touch-action: pan-y; }
+  .tract { stroke: #0a0f17; stroke-width: 0.45; transition: fill 0.3s; }
+  .hl { fill: none; stroke: #fff; stroke-width: 2; pointer-events: none; }
+  .legend { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.78rem; color: var(--ink-2); }
+  .legend .bar { flex: 1; height: 8px; border-radius: 4px; max-width: 260px; }
+  .legend .num { font-variant-numeric: tabular-nums; }
+  .legend .note { color: var(--muted); margin-left: auto; font-size: 0.74rem; }
+
+  /* ---------- evidence row ---------- */
+  .evidence { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; margin-top: 14px; }
+  .scatter svg { display: block; width: 100%; height: auto; }
+  .scatter .axis text { fill: var(--muted); font-size: 11px; font-family: var(--body); }
+  .scatter .axis path, .scatter .axis line { stroke: var(--line); }
+  .scatter .axis-title { fill: var(--ink-2); font-size: 11.5px; font-family: var(--body); }
+  .scatter .grid line { stroke: #17222f; }
+  .scatter .grid path { display: none; }
+  .dot { transition: cx 0.3s, cy 0.3s, fill 0.2s, opacity 0.2s; }
+  .scatter .key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.78rem; color: var(--ink-2); margin-top: 6px; }
+  .scatter .key i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+
+  .stats { display: grid; gap: 14px; align-content: start; }
+  .stat { padding: 14px 16px; }
+  .stat .big { font-family: var(--display); font-weight: 700; font-size: 2.6rem; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stat p { margin: 8px 0 0; color: var(--ink-2); font-size: 0.9rem; }
+  .stat p small { color: var(--muted); }
+
+  details.tbl { margin-top: 14px; }
+  details.tbl summary { cursor: pointer; color: var(--ink-2); font-size: 0.9rem; }
+  details.tbl table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+  details.tbl th, details.tbl td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  details.tbl th:first-child, details.tbl td:first-child { text-align: left; }
+  details.tbl th { color: var(--ink-2); font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .controls { grid-template-columns: 1fr; }
+    .maps, .evidence { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head wrap">
+  <p class="byline">By Gautami Kasat. Built from a MUSA 5500 lab at Penn.</p>
+  <h1>Evictions and building violations cluster in the same Philadelphia neighborhoods</h1>
+  <p class="lede">Each shape is a census tract. Change the year or the violation type, and hover over any tract to see it in both maps and in the chart below.</p>
+</header>
+
+<main class="wrap">
+
+  <section class="controls" aria-label="Controls">
+    <div class="ctl">
+      <span class="lbl" id="lbl-mode">Evictions shown as</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-mode">
+        <input type="radio" name="mode" id="mode-sum" value="sum" checked><label for="mode-sum">2012 to 2016 total</label>
+        <input type="radio" name="mode" id="mode-year" value="year"><label for="mode-year">Single year</label>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="year">Year</label>
+      <div class="yearbox" id="yearbox" aria-disabled="true">
+        <output id="yearOut" for="year">2016</output>
+        <input type="range" id="year" min="2003" max="2016" step="1" value="2016" disabled>
+        <button class="play" id="play" type="button" aria-pressed="false">Play 2003 to 2016</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="vtype">Violation type</label>
+      <select id="vtype"></select>
+    </div>
+  </section>
+  <p class="hint" id="hint" aria-live="polite"></p>
+
+  <section class="maps" aria-label="Maps">
+    <article class="panel map-panel">
+      <h2 id="evTitle">Evictions</h2>
+      <p class="sub">Eviction filings per tract, Eviction Lab</p>
+      <svg id="mapEv" role="img" aria-label="Map of Philadelphia census tracts colored by number of evictions"></svg>
+      <div class="legend" id="legEv"></div>
+    </article>
+    <article class="panel map-panel">
+      <h2 id="viTitle">Code violations</h2>
+      <p class="sub">Violations per tract, 2012 to 2016, Philadelphia L+I</p>
+      <svg id="mapVi" role="img" aria-label="Map of Philadelphia census tracts colored by number of building code violations"></svg>
+      <div class="legend" id="legVi"></div>
+    </article>
+  </section>
+
+  <section class="evidence" aria-label="How closely the two line up">
+    <article class="panel scatter">
+      <h2>Tract by tract</h2>
+      <p class="sub" id="scSub">Each dot is a tract</p>
+      <svg id="scatter" role="img" aria-label="Scatter plot of violations against evictions, one dot per census tract"></svg>
+      <div class="key">
+        <span><i style="background:#f4f8ff"></i>Top quarter for both</span>
+        <span><i style="background:#5b708c"></i>All other tracts</span>
+        <span><i style="background:none;border:1px dashed #8aa0bd;border-radius:0;height:0;width:16px;vertical-align:3px"></i>Trend line</span>
+      </div>
+    </article>
+
+    <div class="stats">
+      <article class="panel stat">
+        <div class="big" id="sR" style="color:var(--ev)">0.00</div>
+        <p>Correlation between the two counts across <span id="sN">384</span> tracts. <small>1.0 would mean a perfect match.</small></p>
+      </article>
+      <article class="panel stat">
+        <div class="big" id="sO" style="color:var(--vi)">0%</div>
+        <p id="sOt">of the tracts with the most evictions are also among the tracts with the most violations. <small>Pure chance would give 25%.</small></p>
+      </article>
+      <article class="panel stat">
+        <div class="big" id="sS">0%</div>
+        <p id="sSt">of all evictions fall in the quarter of tracts with the most violations.</p>
+      </article>
+    </div>
+  </section>
+
+  <details class="tbl panel">
+    <summary>View the top 10 tracts as a table</summary>
+    <table>
+      <thead><tr><th>Tract</th><th>Evictions</th><th>Violations</th><th>Poverty rate</th><th>Renter share</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </details>
+
+</main>
+
+<footer class="site-foot wrap">
+  <p><b>Data.</b> Eviction counts by census tract come from the Eviction Lab at Princeton (2003 to 2016). Code violations come from the Philadelphia Department of Licenses and Inspections (2012 to 2016). The 15 violation types most tied to housing condition were kept, which is 34,108 violations. Each one was assigned to the tract it falls in. Poverty rate and renter share are from the 2016 Eviction Lab file.</p>
+  <p><b>Read with care.</b> These are raw counts, so large tracts naturally have more of both. A strong correlation does not show that one causes the other. The violation file has no dates, so it cannot be split by year. Violation names are simplified from the city's codes.</p>
+  <p><b>How it was made.</b> Analysis in Python (pandas, GeoPandas) for a MUSA 5500 assignment, then rebuilt as this page with Claude after the assignment was graded. <a href="notebook.ipynb">Read the notebook</a>.</p>
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script src="../../../assets/vendor/d3.min.js"></script>
+<script src="data/portal-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  const D = window.PORTAL_DATA, feats = D.features, N = feats.length;
+  const YEARS = D.years, Y0 = YEARS[0];
+  const SUM_IDX = YEARS.map((y, i) => [y, i]).filter(p => p[0] >= 2012).map(p => p[1]);
+
+  const LABELS = {
+    "INT-PLMBG MAINT FIXTURES-RES": "Plumbing fixture maintenance",
+    "INT S-CEILING REPAIR/MAINT SAN": "Interior ceiling repair",
+    "PLUMBING SYSTEMS-GENERAL": "Plumbing systems, general",
+    "CO DETECTOR NEEDED": "Carbon monoxide detector needed",
+    "INTERIOR SURFACES": "Interior surfaces",
+    "EXT S-ROOF REPAIR": "Roof repair",
+    "ELEC-RECEPTABLE DEFECTIVE-RES": "Defective electrical outlet",
+    "INT S-FLOOR REPAIR": "Interior floor repair",
+    "DRAINAGE-MAIN DRAIN REPAIR-RES": "Main drain repair",
+    "DRAINAGE-DOWNSPOUT REPR/REPLC": "Downspout repair or replacement",
+    "LIGHT FIXTURE DEFECTIVE-RES": "Defective light fixture",
+    "LICENSE-RES SFD/2FD": "Residential license, 1 to 2 family homes",
+    "ELECTRICAL -HAZARD": "Electrical hazard",
+    "VACANT PROPERTIES-GENERAL": "Vacant property, general",
+    "INT-PLMBG FIXTURES-RES": "Plumbing fixtures"
+  };
+
+  const state = { mode: "sum", year: 2016, type: "ALL" };
+  const fmt = d3.format(","), fmt1 = d3.format(".2f");
+  const $ = id => document.getElementById(id);
+
+  // ---------- selects ----------
+  const sel = $("vtype");
+  sel.innerHTML = '<option value="ALL">All 15 types combined</option>' +
+    D.types.map((t, i) => `<option value="${i}">${LABELS[t] || t}</option>`).join("");
+
+  // ---------- per-tract values for the current selection ----------
+  let ev = new Float64Array(N), vi = new Float64Array(N);
+  function compute() {
+    for (let i = 0; i < N; i++) {
+      const p = feats[i].properties;
+      ev[i] = state.mode === "sum" ? d3.sum(SUM_IDX, k => p.e[k]) : p.e[state.year - Y0];
+      vi[i] = state.type === "ALL" ? d3.sum(p.v) : p.v[+state.type];
+    }
+  }
+  // fixed color range across all years so the animation shows real change
+  const allE = []; feats.forEach(f => f.properties.e.forEach(x => allE.push(x)));
+  const EV_YEAR_MAX = Math.max(1, d3.quantile(allE, 0.98));
+
+  const evRamp = d3.interpolateRgbBasis(["#0f2233", "#124c6a", "#1b86a0", "#3fd0c9", "#d4fff6"]);
+  const viRamp = d3.interpolateRgbBasis(["#26141c", "#6b2230", "#c24a3a", "#f59a3b", "#ffeab0"]);
+  let evScale, viScale, evMax, viMax;
+
+  // ---------- maps ----------
+  const W = 600, H = 640;
+  const proj = d3.geoMercator().fitExtent([[6, 6], [W - 6, H - 6]], { type: "FeatureCollection", features: feats });
+  const geo = d3.geoPath(proj);
+  function buildMap(id) {
+    const svg = d3.select("#" + id).attr("viewBox", `0 0 ${W} ${H}`);
+    const paths = svg.append("g").selectAll("path").data(feats).join("path")
+      .attr("class", "tract").attr("d", geo).attr("fill", "#0f2233");
+    const hl = svg.append("path").attr("class", "hl");
+    return { svg, paths, hl };
+  }
+  const mapEv = buildMap("mapEv"), mapVi = buildMap("mapVi");
+
+  function legend(el, ramp, max, label) {
+    const stops = d3.range(0, 1.01, 0.1).map(t => `${ramp(t)} ${t * 100}%`).join(",");
+    el.innerHTML = `<span class="num">0</span><span class="bar" style="background:linear-gradient(90deg,${stops})"></span><span class="num">${fmt(Math.round(max))}+</span><span class="note">${label}</span>`;
+  }
+
+  // ---------- scatter ----------
+  const SW = 560, SH = 360, M = { l: 50, r: 14, t: 10, b: 42 };
+  const sc = d3.select("#scatter").attr("viewBox", `0 0 ${SW} ${SH}`);
+  const sx = d3.scaleLinear().range([M.l, SW - M.r]), sy = d3.scaleLinear().range([SH - M.b, M.t]);
+  const gGrid = sc.append("g").attr("class", "grid");
+  const gx = sc.append("g").attr("class", "axis").attr("transform", `translate(0,${SH - M.b})`);
+  const gy = sc.append("g").attr("class", "axis").attr("transform", `translate(${M.l},0)`);
+  sc.append("text").attr("class", "axis-title").attr("x", (M.l + SW - M.r) / 2).attr("y", SH - 6).attr("text-anchor", "middle").text("Code violations in the tract");
+  sc.append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("x", -(M.t + SH - M.b) / 2).attr("y", 13).attr("text-anchor", "middle").text("Evictions in the tract");
+  const trend = sc.append("line").attr("stroke", "#8aa0bd").attr("stroke-dasharray", "5 4").attr("stroke-width", 1.4);
+  const dots = sc.append("g").selectAll("circle").data(feats).join("circle").attr("class", "dot").attr("r", 3.6);
+  const ring = sc.append("circle").attr("r", 7).attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", 2).style("display", "none").style("pointer-events", "none");
+  let delaunay = null;
+
+  // ---------- stats ----------
+  function pearson(a, b) {
+    const ma = d3.mean(a), mb = d3.mean(b); let sab = 0, saa = 0, sbb = 0;
+    for (let i = 0; i < a.length; i++) { const x = a[i] - ma, y = b[i] - mb; sab += x * y; saa += x * x; sbb += y * y; }
+    return saa && sbb ? sab / Math.sqrt(saa * sbb) : 0;
+  }
+  let topBoth = new Uint8Array(N);
+  function stats() {
+    const r = pearson(ev, vi);
+    const qE = d3.quantile(Array.from(ev), 0.75), qV = d3.quantile(Array.from(vi), 0.75);
+    let nTopE = 0, both = 0, evTopV = 0, evAll = 0;
+    for (let i = 0; i < N; i++) {
+      const tE = ev[i] >= qE, tV = vi[i] >= qV;
+      topBoth[i] = tE && tV ? 1 : 0;
+      if (tE) { nTopE++; if (tV) both++; }
+      if (tV) evTopV += ev[i];
+      evAll += ev[i];
+    }
+    $("sR").textContent = fmt1(r);
+    $("sN").textContent = N;
+    $("sO").textContent = Math.round(100 * both / nTopE) + "%";
+    $("sS").textContent = evAll ? Math.round(100 * evTopV / evAll) + "%" : "0%";
+    const when = state.mode === "sum" ? "from 2012 to 2016" : "in " + state.year;
+    $("sSt").textContent = "of all evictions " + when + " fall in the quarter of tracts with the most violations.";
+    return { r };
+  }
+
+  // ---------- OLS trend ----------
+  function trendLine() {
+    const mx = d3.mean(vi), my = d3.mean(ev); let sxy = 0, sxx = 0;
+    for (let i = 0; i < N; i++) { sxy += (vi[i] - mx) * (ev[i] - my); sxx += (vi[i] - mx) ** 2; }
+    const b = sxx ? sxy / sxx : 0, a = my - b * mx, x1 = sx.domain()[1];
+    trend.attr("x1", sx(0)).attr("y1", sy(Math.max(0, a))).attr("x2", sx(x1)).attr("y2", sy(a + b * x1));
+  }
+
+  // ---------- labels ----------
+  const periodLabel = () => state.mode === "sum" ? "2012 to 2016 total" : String(state.year);
+  const typeLabel = () => state.type === "ALL" ? "all 15 types" : LABELS[D.types[+state.type]];
+  const tractName = id => { const n = parseInt(id.slice(5, 9), 10), s = id.slice(9, 11); return "Tract " + n + (s === "00" ? "" : "." + s); };
+
+  // ---------- main update ----------
+  function update(animate) {
+    compute();
+    evMax = state.mode === "sum" ? Math.max(1, d3.quantile(Array.from(ev), 0.98)) : EV_YEAR_MAX;
+    viMax = Math.max(1, d3.quantile(Array.from(vi), 0.98));
+    evScale = d3.scaleSequentialSqrt(evRamp).domain([0, evMax]).clamp(true);
+    viScale = d3.scaleSequentialSqrt(viRamp).domain([0, viMax]).clamp(true);
+    const dur = animate ? 350 : 0;
+    mapEv.paths.transition().duration(dur).attr("fill", (d, i) => evScale(ev[i]));
+    mapVi.paths.transition().duration(dur).attr("fill", (d, i) => viScale(vi[i]));
+    $("evTitle").textContent = "Evictions, " + periodLabel();
+    $("viTitle").textContent = "Code violations: " + typeLabel();
+    legend($("legEv"), evRamp, evMax, "Color stretches low counts");
+    legend($("legVi"), viRamp, viMax, "Color stretches low counts");
+    $("scSub").textContent = "Each dot is a tract. Evictions: " + periodLabel() + ". Violations: " + typeLabel() + ".";
+
+    const { r } = stats();
+    sx.domain([0, d3.max(vi) * 1.04 || 1]); sy.domain([0, d3.max(ev) * 1.06 || 1]);
+    gx.call(d3.axisBottom(sx).ticks(6).tickSizeOuter(0));
+    gy.call(d3.axisLeft(sy).ticks(5).tickSizeOuter(0));
+    gGrid.attr("transform", `translate(${M.l},0)`).call(d3.axisLeft(sy).ticks(5).tickSize(-(SW - M.l - M.r)).tickFormat(""));
+    dots.transition().duration(dur).attr("cx", (d, i) => sx(vi[i])).attr("cy", (d, i) => sy(ev[i]))
+      .attr("fill", (d, i) => topBoth[i] ? "#f4f8ff" : "#5b708c").attr("opacity", (d, i) => topBoth[i] ? 0.95 : 0.6);
+    trendLine();
+    delaunay = d3.Delaunay.from(feats.map((d, i) => [sx(vi[i]), sy(ev[i])]));
+
+    $("hint").textContent = state.mode === "year" && state.year < 2012
+      ? "Heads up: violations only cover 2012 to 2016, so earlier years compare different periods."
+      : "";
+    table();
+    if (hoverI >= 0) setHover(hoverI, null);
+  }
+
+  function table() {
+    const idx = d3.range(N).sort((a, b) => ev[b] - ev[a]).slice(0, 10);
+    $("tbody").innerHTML = idx.map(i => {
+      const p = feats[i].properties;
+      return `<tr><td>${tractName(p.id)}</td><td>${fmt(ev[i])}</td><td>${fmt(vi[i])}</td><td>${p.pov}%</td><td>${p.ren}%</td></tr>`;
+    }).join("");
+  }
+
+  // ---------- hover linking ----------
+  let hoverI = -1;
+  const tip = $("tip");
+  function setHover(i, evt) {
+    hoverI = i;
+    const f = feats[i], p = f.properties, d = geo(f);
+    mapEv.hl.attr("d", d); mapVi.hl.attr("d", d);
+    ring.style("display", null).attr("cx", sx(vi[i])).attr("cy", sy(ev[i]));
+    tip.innerHTML = `<b>${tractName(p.id)}</b>
+      <div class="row"><span>Evictions</span><span class="num">${fmt(ev[i])}</span></div>
+      <div class="row"><span>Violations</span><span class="num">${fmt(vi[i])}</span></div>
+      <div class="row"><span>Poverty rate</span><span class="num">${p.pov}%</span></div>
+      <div class="row"><span>Renter share</span><span class="num">${p.ren}%</span></div>
+      <div class="row"><span>Median rent</span><span class="num">${p.rent ? "$" + fmt(p.rent) : "n/a"}</span></div>`;
+    tip.classList.add("on");
+    if (evt) moveTip(evt.clientX, evt.clientY);
+  }
+  function moveTip(x, y) {
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let left = x + 16, top = y + 16;
+    if (left + w > innerWidth - 8) left = x - w - 16;
+    if (top + h > innerHeight - 8) top = y - h - 16;
+    tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+  }
+  function clearHover() {
+    hoverI = -1; mapEv.hl.attr("d", null); mapVi.hl.attr("d", null);
+    ring.style("display", "none"); tip.classList.remove("on");
+  }
+  [mapEv, mapVi].forEach(m => {
+    m.paths.on("pointerenter pointermove", (e, d) => setHover(feats.indexOf(d), e)).on("pointerleave", clearHover);
+  });
+  sc.on("pointermove", e => {
+    const pt = d3.pointer(e, sc.node()), [mx, my] = pt;
+    const k = delaunay.find(mx, my);
+    const dx = sx(vi[k]) - mx, dy = sy(ev[k]) - my;
+    if (dx * dx + dy * dy < 30 * 30) setHover(k, e); else clearHover();
+  }).on("pointerleave", clearHover);
+
+  // ---------- controls ----------
+  document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener("change", e => {
+    state.mode = e.target.value; stopPlay();
+    const on = state.mode === "year";
+    $("year").disabled = !on; $("yearbox").setAttribute("aria-disabled", String(!on));
+    update(true);
+  }));
+  $("year").addEventListener("input", e => { state.year = +e.target.value; $("yearOut").textContent = state.year; stopPlay(); update(true); });
+  sel.addEventListener("change", e => { state.type = e.target.value; update(true); });
+
+  let timer = null;
+  function stopPlay() { if (timer) { clearInterval(timer); timer = null; } $("play").setAttribute("aria-pressed", "false"); $("play").textContent = "Play 2003 to 2016"; }
+  function setYear(y) { state.year = y; $("year").value = y; $("yearOut").textContent = y; update(true); }
+  $("play").addEventListener("click", () => {
+    if (timer) { stopPlay(); return; }
+    document.getElementById("mode-year").checked = true;
+    state.mode = "year"; $("year").disabled = false; $("yearbox").setAttribute("aria-disabled", "false");
+    $("play").setAttribute("aria-pressed", "true"); $("play").textContent = "Pause";
+    let y = 2003; setYear(y);
+    timer = setInterval(() => { y++; if (y > 2016) { stopPlay(); return; } setYear(y); }, 1000);
+  });
+
+  update(false);
+})();
+</script>
+</body>
+</html>
