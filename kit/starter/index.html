@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- Copy this file to projects/<course>/<lab>/<view>/index.html, then replace every {{TOKEN}}. See kit/TEMPLATE.md. -->
+<title>{{PAGE_TITLE}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--ASSET:css--><link rel="stylesheet" href="../../../../assets/style.css"><!--/ASSET:css-->
+<!--ASSET:kcss--><link rel="stylesheet" href="../../../../kit/portal.css"><!--/ASSET:kcss-->
+</head>
+<body>
+
+<header class="top wrap">
+  <p class="me"><a href="https://www.linkedin.com/in/gautamikasat" target="_blank" rel="noopener">Gautami Kasat</a></p>
+  <h1>{{TITLE_QUESTION}}</h1>
+  <p class="lede">{{LEDE}}</p>
+</header>
+
+<section class="band" aria-label="Map">
+  <div class="band-in">
+    <div class="rail left">
+      <div class="block" id="periodBlock">
+        <div class="yearhead"><button class="playbtn" id="play" type="button" aria-pressed="false" aria-label="Play through the periods"></button></div>
+        <div class="years" id="periods" role="radiogroup" aria-label="Period"></div>
+      </div>
+      <div class="block" id="bBlock">
+        <span class="k" id="bHead"></span>
+        <div class="chips" id="chips"></div>
+        <p class="note">{{B_NOTE}}</p>
+      </div>
+    </div>
+
+    <div class="mapwrap">
+      <div class="mapbox"><svg id="map" role="img" aria-label="{{MAP_ALT}}"></svg></div>
+    </div>
+
+    <div class="rail right">
+      <div class="block" aria-live="polite">
+        <span class="k" id="placeHead"></span>
+        <p class="empty" id="emptyCard"></p>
+        <div class="pop" id="pop" hidden><button class="x" id="popClose" type="button" aria-label="Unpin" hidden>&times;</button><div id="popBody"></div></div>
+      </div>
+      <div class="block">
+        <span class="k">Reading the colors</span>
+        <div class="biv" id="biv"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="test" aria-label="The test">
+    <div class="scatter">
+      <h2>The test</h2>
+      <p class="sub">Each dot is a {{PLACE_ONE}}. Up and to the right means more of both.</p>
+      <svg id="scatter" role="img" aria-label="Scatter plot of the two measures, one dot per {{PLACE_ONE}}, with a trend line"></svg>
+    </div>
+    <div class="nums" aria-live="polite">
+      <div class="num"><b id="rBoth" style="color:var(--both)">0</b><span id="lBoth"></span></div>
+      <div class="num"><b id="rOver" style="color:var(--both)">0%</b><span id="lOver"></span></div>
+      <div class="num"><b id="rCorr">0.00</b><span id="lCorr"></span></div>
+      <div class="num yrs" id="ybarsBlock"><span class="k">{{YBARS_LABEL}}</span><div class="ybars" id="ybars"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer class="made wrap">
+  <h2>How it was made</h2>
+  <div class="toolrow"><span class="k">Analysis</span>{{TOOLS_ANALYSIS}}</div>
+  <div class="toolrow"><span class="k">Portal</span><span class="tool">D3.js</span><span class="tool">JavaScript</span><span class="tool">HTML and CSS</span><span class="tool">GitHub Pages</span><span class="tool">Claude</span></div>
+  <div class="toolrow"><span class="k">Data</span>{{TOOLS_DATA}}</div>
+  <p class="fine">{{FINE_PRINT}}</p>
+  <p class="links">{{LINKS}}</p>
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<!--ASSET:d3--><script src="../../../../assets/vendor/d3.min.js"></script><!--/ASSET:d3-->
+<!--ASSET:data--><script src="{{DATA_PATH}}"></script><!--/ASSET:data-->
+<script>
+// Everything specific to this study lives here. See kit/TEMPLATE.md for every option.
+window.PORTAL_CONFIG = {{CONFIG}};
+</script>
+<!--ASSET:kjs--><script src="../../../../kit/portal.js"></script><!--/ASSET:kjs-->
+</body>
+</html>

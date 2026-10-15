@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Evictions and Building Violations in Philadelphia</title>
+<meta name="description" content="Do evictions and building violations cluster in the same Philadelphia neighborhoods? An interactive map of 384 census tracts, 2012 to 2016.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--ASSET:css--><link rel="stylesheet" href="../../../../assets/style.css"><!--/ASSET:css-->
+<!--ASSET:kcss--><link rel="stylesheet" href="../../../../kit/portal.css"><!--/ASSET:kcss-->
+</head>
+<body>
+
+<header class="top wrap">
+  <p class="me"><a href="https://www.linkedin.com/in/gautamikasat" target="_blank" rel="noopener">Gautami Kasat</a></p>
+  <h1>Do evictions and building violations cluster in Philly?</h1>
+  <p class="lede">Let's test it. Pick a year, pick a violation, tap a neighborhood.</p>
+</header>
+
+<section class="band" aria-label="Map">
+  <div class="band-in">
+    <div class="rail left">
+      <div class="block" id="periodBlock">
+        <div class="yearhead"><button class="playbtn" id="play" type="button" aria-pressed="false" aria-label="Play through the periods"></button></div>
+        <div class="years" id="periods" role="radiogroup" aria-label="Period"></div>
+      </div>
+      <div class="block" id="bBlock">
+        <span class="k" id="bHead"></span>
+        <div class="chips" id="chips"></div>
+        <p class="note">The number shows how closely each kind tracks evictions. 1 would be a perfect match.</p>
+      </div>
+    </div>
+
+    <div class="mapwrap">
+      <div class="mapbox"><svg id="map" role="img" aria-label="Map of Philadelphia neighborhoods colored by whether evictions, violations, both or neither are high"></svg></div>
+    </div>
+
+    <div class="rail right">
+      <div class="block" aria-live="polite">
+        <span class="k" id="placeHead"></span>
+        <p class="empty" id="emptyCard"></p>
+        <div class="pop" id="pop" hidden><button class="x" id="popClose" type="button" aria-label="Unpin" hidden>&times;</button><div id="popBody"></div></div>
+      </div>
+      <div class="block">
+        <span class="k">Reading the colors</span>
+        <div class="biv" id="biv"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="test" aria-label="The test">
+    <div class="scatter">
+      <h2>The test</h2>
+      <p class="sub">Each dot is a neighborhood. Up and to the right means more of both.</p>
+      <svg id="scatter" role="img" aria-label="Scatter plot of the two measures, one dot per neighborhood, with a trend line"></svg>
+    </div>
+    <div class="nums" aria-live="polite">
+      <div class="num"><b id="rBoth" style="color:var(--both)">0</b><span id="lBoth"></span></div>
+      <div class="num"><b id="rOver" style="color:var(--both)">0%</b><span id="lOver"></span></div>
+      <div class="num"><b id="rCorr">0.00</b><span id="lCorr"></span></div>
+      <div class="num yrs" id="ybarsBlock"><span class="k">Correlation each year</span><div class="ybars" id="ybars"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer class="made wrap">
+  <h2>How it was made</h2>
+  <div class="toolrow"><span class="k">Analysis</span><span class="tool">Python</span><span class="tool">JupyterLab</span><span class="tool">Conda</span><span class="tool">pandas</span><span class="tool">NumPy</span><span class="tool">GeoPandas</span><span class="tool">hvPlot</span><span class="tool">HoloViews</span><span class="tool">GeoViews</span><span class="tool">Panel</span><span class="tool">Matplotlib</span></div>
+  <div class="toolrow"><span class="k">Portal</span><span class="tool">D3.js</span><span class="tool">JavaScript</span><span class="tool">HTML and CSS</span><span class="tool">GitHub Pages</span><span class="tool">Claude</span></div>
+  <div class="toolrow"><span class="k">Data</span><span class="tool">Eviction Lab, Princeton</span><span class="tool">Philadelphia L&amp;I violations</span></div>
+  <p class="fine">Neighborhoods are the city's 384 census tracts. 34,108 violations from 15 housing-condition codes, grouped into four kinds. Violation data covers 2012 to 2016, so the study uses those years. High means the top quarter of neighborhoods. Raw counts, so bigger neighborhoods have more of both. A pattern, not proof of cause.</p>
+  <p class="links"><a href="../notebook.ipynb">Read the notebook</a></p>
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<!--ASSET:d3--><script src="../../../../assets/vendor/d3.min.js"></script><!--/ASSET:d3-->
+<!--ASSET:data--><script src="../data/portal-data.js"></script><!--/ASSET:data-->
+<script>
+// Everything specific to this study lives here. See kit/TEMPLATE.md for every option.
+window.PORTAL_CONFIG = {
+  "place": {
+    "one": "neighborhood",
+    "many": "neighborhoods"
+  },
+  "a": {
+    "name": "Evictions",
+    "lower": "evictions",
+    "field": "e",
+    "periods": {
+      "keys": [
+        2012,
+        2013,
+        2014,
+        2015,
+        2016
+      ],
+      "index": [
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "allLabel": "All years",
+      "allText": "2012 to 2016"
+    }
+  },
+  "b": {
+    "name": "Violations",
+    "lower": "violations",
+    "field": "v",
+    "xSuffix": ", 2012 to 2016",
+    "allName": "All violations",
+    "allDesc": "All 15 violation types",
+    "groups": [
+      {
+        "name": "Walls, floors, ceilings",
+        "icon": "layers",
+        "desc": "Ceiling repair, floor repair, interior surfaces",
+        "codes": [
+          "INT S-CEILING REPAIR/MAINT SAN",
+          "INT S-FLOOR REPAIR",
+          "INTERIOR SURFACES"
+        ]
+      },
+      {
+        "name": "Leaks and plumbing",
+        "icon": "drop",
+        "desc": "Plumbing fixtures, plumbing systems, main drains, downspouts",
+        "codes": [
+          "INT-PLMBG MAINT FIXTURES-RES",
+          "INT-PLMBG FIXTURES-RES",
+          "PLUMBING SYSTEMS-GENERAL",
+          "DRAINAGE-MAIN DRAIN REPAIR-RES",
+          "DRAINAGE-DOWNSPOUT REPR/REPLC"
+        ]
+      },
+      {
+        "name": "Wiring and safety",
+        "icon": "bolt",
+        "desc": "Faulty outlets, light fixtures, electrical hazards, missing CO detectors",
+        "codes": [
+          "ELEC-RECEPTABLE DEFECTIVE-RES",
+          "LIGHT FIXTURE DEFECTIVE-RES",
+          "ELECTRICAL -HAZARD",
+          "CO DETECTOR NEEDED"
+        ]
+      },
+      {
+        "name": "Roof and vacancy",
+        "icon": "home",
+        "desc": "Roof repair, vacant properties, rental license issues",
+        "codes": [
+          "EXT S-ROOF REPAIR",
+          "VACANT PROPERTIES-GENERAL",
+          "LICENSE-RES SFD/2FD"
+        ]
+      }
+    ]
+  },
+  "context": [
+    {
+      "key": "ren",
+      "label": "Renters",
+      "unit": "%"
+    },
+    {
+      "key": "rent",
+      "label": "Median rent",
+      "unit": "$"
+    }
+  ]
+};
+</script>
+<!--ASSET:kjs--><script src="../../../../kit/portal.js"></script><!--/ASSET:kjs-->
+</body>
+</html>

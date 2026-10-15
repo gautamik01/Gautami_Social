@@ -1,0 +1,149 @@
+/* Gautami's map-portal kit: shared layout for every "overlap" portal.
+   Layout: short title, then the map as a full-width hero with soft controls in the side rails
+   (periods + B groups on the left, selected place + 2x2 legend on the right), then "the test"
+   (scatter + trend line with the big numbers beside it), then "How it was made".
+   Borders are rare on purpose: only the selected-place card has one.
+   Colors and fonts come from ../assets/style.css. */
+
+.top { padding-top: 28px; }
+.top.wrap, main.wrap, .made.wrap { max-width: 1340px; }
+.top .me { margin: 0 0 14px; font-size: 0.95rem; font-weight: 600; }
+.top .me a { color: var(--ink); text-decoration-color: var(--line-2); }
+.top h1 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.04; margin: 0; max-width: 22ch; text-wrap: balance; }
+.top .lede { margin: 12px 0 0; font-size: 1.12rem; color: var(--ink-2); max-width: 60ch; }
+
+.k { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 10px; }
+.note { margin: 12px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.45; max-width: 30ch; }
+
+/* ---------- hero band: rail | map | rail ---------- */
+.band { margin-top: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band-in { max-width: 1308px; margin: 0 auto; display: grid; grid-template-columns: 236px minmax(0, 1fr) 270px; gap: 28px; align-items: stretch; }
+.rail { display: flex; flex-direction: column; gap: 40px; padding-top: 8px; padding-bottom: 8px; min-width: 0; }
+.rail.right { justify-content: space-between; }
+.empty { margin: 0; font-size: 0.95rem; color: var(--muted); max-width: 26ch; }
+.mapwrap { position: relative; min-width: 0; }
+.mapbox { position: relative; aspect-ratio: 600 / 640; height: min(88vh, 900px); width: auto; max-width: 100%; margin: 0 auto; touch-action: pan-y; }
+.mapbox svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tract { stroke: #fff; stroke-width: 0.7; transition: fill 0.35s, opacity 0.25s; cursor: pointer; }
+.hl { fill: none; stroke: var(--ink); stroke-width: 2.6; pointer-events: none; stroke-linejoin: round; }
+.pinp { fill: none; stroke: var(--ink); stroke-width: 3.6; stroke-dasharray: 7 4; pointer-events: none; stroke-linejoin: round; }
+.tapchip { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); z-index: 2; pointer-events: none; background: var(--ink); color: #fff; font-weight: 600; font-size: 0.85rem; padding: 7px 14px; border-radius: 99px; transition: opacity 0.4s; white-space: nowrap; }
+.tapchip.gone { opacity: 0; }
+
+/* years: a soft vertical rail, only the chosen year is filled */
+.yearhead { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.yearhead .k { margin: 0; }
+.playbtn { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; display: grid; place-items: center; cursor: pointer; transition: background 0.15s, transform 0.08s; }
+.playbtn:hover { background: #22345c; transform: scale(1.05); }
+.playbtn svg { width: 18px; height: 18px; }
+.playbtn[aria-pressed="true"] { background: var(--both); }
+.years { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.years input { position: absolute; opacity: 0; pointer-events: none; }
+.years label { padding: 7px 14px; border-radius: 99px; font-weight: 600; font-size: 1rem; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.15s, color 0.15s; font-variant-numeric: tabular-nums; }
+.years label:hover { color: var(--ink); background: var(--soft); }
+.years input:checked + label { background: var(--ink); color: #fff; }
+.years input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* legend: a 2 x 2 square that explains the colors */
+.biv { display: grid; grid-template-columns: 22px auto; grid-template-rows: auto 20px; gap: 6px; width: max-content; }
+.biv .ylab { grid-row: 1; grid-column: 1; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.78rem; font-weight: 600; color: var(--ink-2); text-align: center; }
+.biv .xlab { grid-row: 2; grid-column: 2; font-size: 0.78rem; font-weight: 600; color: var(--ink-2); text-align: center; }
+.biv .grid { grid-row: 1; grid-column: 2; display: grid; grid-template-columns: 70px 70px; grid-template-rows: 70px 70px; gap: 4px; }
+.cell { border: 0; border-radius: 10px; cursor: default; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 7px 8px; font: inherit; text-align: left; transition: transform 0.12s; }
+.cell:hover, .cell:focus-visible { transform: scale(1.06); }
+.cell b { font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.cell span { font-size: 0.68rem; font-weight: 600; line-height: 1.15; margin-top: 2px; }
+.cell.dark { color: #fff; }
+.cell.light { color: var(--ink); }
+
+/* violations: soft chips, the chosen one is tinted */
+.chips { display: grid; gap: 4px; }
+.chip {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  width: 100%; text-align: left; font: inherit; color: var(--ink-2); background: transparent; border: 0; border-radius: 99px;
+  padding: 7px 12px; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.chip:hover { background: var(--soft); color: var(--ink); }
+.chip svg { width: 17px; height: 17px; display: block; }
+.chip .nm { font-weight: 600; font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip .r { font-family: var(--display); font-weight: 700; font-size: 0.86rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.chip[aria-pressed="true"] { background: #f1e5f3; color: var(--both); }
+.chip[aria-pressed="true"] .r { color: var(--both); }
+
+/* the one bordered thing: tract pop-up */
+.pop { position: relative; width: 100%; background: #fff; border: 1.5px solid var(--ink); border-radius: 14px; padding: 14px; box-shadow: 0 14px 34px rgba(20, 33, 61, 0.2); }
+.pop[hidden] { display: none; }
+.pop .x { position: absolute; right: 8px; top: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--soft); color: var(--ink); font-size: 1.1rem; font-weight: 700; cursor: pointer; line-height: 1; }
+.pop .x:hover { background: #e6ebf3; }
+.pinned { font-family: var(--body); font-size: 0.7rem; font-weight: 600; background: var(--ink); color: #fff; border-radius: 99px; padding: 3px 8px; vertical-align: 4px; margin-left: 4px; }
+.tname { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; margin: 0 36px 0 0; }
+.verdict { display: inline-block; margin: 8px 0 10px; padding: 4px 11px; border-radius: 99px; font-weight: 600; font-size: 0.82rem; }
+.verdict.c3 { background: #f1e5f3; color: var(--both); }
+.verdict.c1 { background: #e3effa; color: #1c4f86; }
+.verdict.c2 { background: #fdeede; color: #8f3d0c; }
+.verdict.c0 { background: var(--soft); color: var(--ink-2); }
+.meter { margin-bottom: 10px; }
+.meter .mr { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 0.9rem; }
+.meter .mr b { font-family: var(--display); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.mbar { height: 8px; background: var(--none); border-radius: 4px; margin: 3px 0 2px; position: relative; }
+.mbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; min-width: 3px; }
+.meter small { color: var(--muted); font-size: 0.78rem; }
+.ctxl { margin: 4px 0 0; display: grid; font-size: 0.85rem; }
+.ctxl div { display: flex; justify-content: space-between; padding: 4px 0; }
+.ctxl dt { color: var(--ink-2); }
+.ctxl dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- the test: regression with the numbers beside it ---------- */
+.test { margin-top: 64px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.test h2 { font-family: var(--display); font-weight: 700; font-size: 1.8rem; letter-spacing: -0.01em; margin: 0 0 2px; }
+.test .sub { color: var(--muted); font-size: 0.95rem; margin: 0 0 10px; }
+.scatter svg { display: block; width: 100%; height: auto; }
+.scatter .axis text { fill: var(--muted); font-size: 11px; font-family: var(--body); }
+.scatter .axis path, .scatter .axis line { stroke: var(--line-2); }
+.scatter .axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 600; font-family: var(--body); }
+.scatter .grid line { stroke: #edf1f6; }
+.scatter .grid path { display: none; }
+.dot { stroke: #fff; stroke-width: 1; transition: cx 0.3s, cy 0.3s, fill 0.2s; cursor: pointer; }
+.qlabel { font-size: 12px; font-weight: 700; fill: var(--both); font-family: var(--body); }
+.fitlabel { font-size: 12px; font-weight: 600; fill: var(--ink-2); font-family: var(--body); }
+.nums { display: grid; gap: 30px; padding-top: 64px; }
+.num b { display: block; font-family: var(--display); font-weight: 700; font-size: 3.2rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.num > span { display: block; margin-top: 6px; color: var(--ink-2); font-size: 1rem; max-width: 34ch; }
+.ybars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: end; height: 84px; max-width: 300px; }
+.ybars div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
+.ybars i { width: 100%; max-width: 30px; background: var(--line-2); border-radius: 5px 5px 0 0; display: block; transition: height 0.3s, background 0.2s; }
+.ybars i.on { background: var(--both); }
+.ybars span { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ybars em { font-style: normal; font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- how it was made ---------- */
+.made { margin-top: 64px; padding-bottom: 56px; }
+.made h2 { font-family: var(--display); font-weight: 600; font-size: 1.15rem; margin: 0 0 12px; }
+.toolrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+.toolrow .k { margin: 0; letter-spacing: 0; font-size: 0.82rem; font-weight: 600; width: 72px; flex: none; }
+.tool { font-size: 0.86rem; font-weight: 600; padding: 5px 12px; border-radius: 99px; background: var(--soft); color: var(--ink); }
+.made .fine { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); max-width: 80ch; }
+.made .links { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-weight: 600; font-size: 0.95rem; }
+
+/* ---------- smaller screens: rails move above and below the map ---------- */
+@media (max-width: 1150px) {
+  .band-in { grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+  .mapwrap { grid-column: 1 / -1; grid-row: 1; }
+  .mapbox { height: auto; width: 100%; max-width: 760px; }
+  .rail.left { grid-row: 2; }
+  .rail.right { grid-row: 2; justify-content: flex-start; }
+  .years { flex-direction: row; flex-wrap: wrap; }
+  .years label { margin-left: 0; }
+  .yearhead { max-width: none; justify-content: flex-start; gap: 14px; }
+  .test { grid-template-columns: 1fr; }
+  .nums { padding-top: 0; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .band-in { grid-template-columns: 1fr; }
+  .rail.left, .rail.right { grid-row: auto; }
+  .rail { gap: 28px; }
+  .nums { grid-template-columns: 1fr; }
+  .pop { box-shadow: none; }
+  .tapchip { font-size: 0.8rem; }
+  .toolrow .k { width: 100%; }
+}
