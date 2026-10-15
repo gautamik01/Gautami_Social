@@ -1,6 +1,6 @@
 ---
 name: portal-templates
-description: Use when Gautami says "use my <name> template" (for example "use my Overlap Map template"), "make a portal", or wants a lab, notebook or project turned into an interactive page.
+description: Use when Gautami says "use my ... template" (for example "use my Overlap Map template"), "make a portal", or wants a lab, notebook or project turned into an interactive page.
 ---
 
 # Portal templates
