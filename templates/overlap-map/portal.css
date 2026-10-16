@@ -151,3 +151,18 @@
   .tapchip { font-size: 0.8rem; }
   .toolrow .k { width: 100%; }
 }
+
+/* ---------- side-by-side mode: two linked maps in the hero band ---------- */
+.sidemaps { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.sidemap { margin: 0; min-width: 0; }
+.sidemap h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 8px; display: flex; align-items: center; gap: 9px; }
+.sidemap h3 i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+.sidemap .mapbox { height: auto; width: 100%; max-width: 100%; }
+.sidemap .ramp { width: 100%; max-width: 260px; margin-top: 8px; }
+@media (max-width: 700px) { .sidemaps { grid-template-columns: 1fr; } }
+
+/* optional context chart in the left rail (config.trend) */
+.trend { display: flex; align-items: flex-end; gap: 3px; height: 70px; max-width: 220px; }
+.trend div { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.trend i { display: block; width: 100%; border-radius: 3px 3px 0 0; }
+.trendx { display: flex; justify-content: space-between; max-width: 220px; font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }

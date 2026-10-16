@@ -11,7 +11,7 @@ Run this at the end of a lab notebook, or paste the function into a cell.
         b_cols=violation_count_columns,                # measure B: one column, or a list (one per type)
         b_types=violation_type_names,                  # names for the B list, in the same order (optional)
         context={"ren": "pro-16", "rent": "mgr-16"},   # extra facts for the card: new_key -> column
-        out_path="projects/<course>/<lab>/data/portal-data.js",
+        out_path="data/<page-name>.js",
     )
 
 Keeps files small: drops every other column, simplifies shapes, rounds coordinates.

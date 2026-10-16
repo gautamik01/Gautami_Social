@@ -1,7 +1,6 @@
 # Overlap Map
 
-Portal template 1. Say "use my Overlap Map template". One hero map where two measures meet. Reference build:
-`projects/musa-5500-python/assignment-3-evictions-ndvi/overlap/`.
+Portal template 1. Say "use my Overlap Map template". One hero map where two measures meet, two linked maps side by side (`mode: "side"`), or one measure on a gradient (`mode: "single"`). Examples: `portals/evictions-and-violations-2012-2016.html` (overlap) and `portals/eviction-patterns-2003-2016.html` (side by side, then vs now).
 
 Goal: one lab or project becomes a clean, interactive page in about 15 minutes.
 
@@ -43,7 +42,7 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 | `assets/style.css` | Colors, fonts, buttons, tooltip (shared by every portal) |
 | `templates/overlap-map/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
 | `templates/overlap-map/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
-| `templates/overlap-map/starter/index.html` | Page skeleton with `{{TOKENS}}` to fill |
+| `templates/overlap-map/starter.html` | Page skeleton with `{{TOKENS}}` to fill |
 | `templates/overlap-map/portal_export.py` | Turns a GeoDataFrame into the data file |
 
 ## Data format (`window.PORTAL_DATA`)
@@ -103,8 +102,8 @@ Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.
 
 1. **Upload** the notebook (and the zip, or just the files it reads) and say: "Use my portal template. A is ..., B is ..."
 2. **Check the data** (2 min): only the years both measures share, no secrets or private paths, notebook numbers recomputed.
-3. **Export** (3 min): `portal_export.py` writes `projects/<course>/<lab>/data/portal-data.js`.
-4. **Fill** (5 min): copy `templates/overlap-map/starter/index.html` to `projects/<course>/<lab>/<view>/index.html`, then fill the tokens and config.
+3. **Export** (3 min): `portal_export.py` writes `data/<page-name>.js`. The notebook goes in `projects/<project-name>/`.
+4. **Fill** (5 min): copy `templates/overlap-map/starter.html` to `portals/<page-name>.html`, then fill the tokens and config.
 5. **Preview** (3 min): test it in a browser and share a private preview link.
 6. **Publish** (2 min): add a card to the root `index.html` and a row to `README.md`, write the LinkedIn caption in `posts/`, then commit and push.
 
@@ -112,4 +111,4 @@ Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.
 
 - **One measure only, with no comparison:** keep the hero band and rails, color by a single blue ramp, and drop the 2×2 legend and the test section.
 - **Points instead of areas** (trees, stops, crashes): aggregate the points to tracts first, then use the kit as-is.
-- **Before and after, or two time periods side by side:** build a second view folder (for example `side-by-side/`) with the same header, rails and footer.
+- **Before and after, or two time periods:** use `mode: "side"` with `sameScale: true`, `dots: "classes"` and `diagonal` (see the eviction patterns page).

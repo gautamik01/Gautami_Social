@@ -1,10 +1,10 @@
 # LinkedIn draft: Lab 3, evictions and building violations
 
-Link: https://gautamik01.github.io/Gautami_Social/projects/musa-5500-python/assignment-3-evictions-ndvi/overlap/
+Link: https://gautamik01.github.io/Gautami_Social/portals/evictions-and-violations-2012-2016.html
 
 ---
 
-Do evictions and building violations cluster in Philly? I tested it.
+Did evictions and building violations cluster in Philly from 2012 to 2016? I tested it.
 
 I mapped 384 neighborhoods from 2012 to 2016. The purple ones rank high on both, and they keep showing up in the same parts of the city. 57% of the top eviction neighborhoods are also top violation neighborhoods, where chance alone would give 25%.
 

@@ -4,17 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="claude:viewport-fit-sides" content="cover">
-<!-- Copy this file to projects/<course>/<lab>/<view>/index.html, then replace every {{TOKEN}}. See templates/overlap-map/TEMPLATE.md. -->
+<!-- Copy this file to portals/<page-name>.html, then replace every {{TOKEN}}. See templates/overlap-map/TEMPLATE.md. -->
 <title>{{PAGE_TITLE}}</title>
 <meta name="description" content="{{DESCRIPTION}}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!--ASSET:css--><link rel="stylesheet" href="../../../../assets/style.css"><!--/ASSET:css-->
-<!--ASSET:kcss--><link rel="stylesheet" href="../../../../templates/overlap-map/portal.css"><!--/ASSET:kcss-->
+<!--ASSET:css--><link rel="stylesheet" href="../assets/style.css"><!--/ASSET:css-->
+<!--ASSET:kcss--><link rel="stylesheet" href="../templates/overlap-map/portal.css"><!--/ASSET:kcss-->
 </head>
 <body>
 
+<!-- EDIT ME: the title (h1) and the line under it (lede) are just below.
+     More wording (legend words, number labels, notes) lives in PORTAL_CONFIG near the bottom of this file. -->
 <header class="top wrap">
   <p class="me"><a href="https://www.linkedin.com/in/gautamikasat" target="_blank" rel="noopener">Gautami Kasat</a></p>
   <h1>{{TITLE_QUESTION}}</h1>
@@ -69,6 +71,7 @@
   </section>
 </main>
 
+<!-- EDIT ME: tools, fine print and links -->
 <footer class="made wrap">
   <h2>How it was made</h2>
   <div class="toolrow"><span class="k">Analysis</span>{{TOOLS_ANALYSIS}}</div>
@@ -80,12 +83,12 @@
 
 <div class="tip" id="tip" role="tooltip"></div>
 
-<!--ASSET:d3--><script src="../../../../assets/vendor/d3.min.js"></script><!--/ASSET:d3-->
+<!--ASSET:d3--><script src="../assets/d3.min.js"></script><!--/ASSET:d3-->
 <!--ASSET:data--><script src="{{DATA_PATH}}"></script><!--/ASSET:data-->
 <script>
 // Everything specific to this study lives here. See templates/overlap-map/TEMPLATE.md for every option.
 window.PORTAL_CONFIG = {{CONFIG}};
 </script>
-<!--ASSET:kjs--><script src="../../../../templates/overlap-map/portal.js"></script><!--/ASSET:kjs-->
+<!--ASSET:kjs--><script src="../templates/overlap-map/portal.js"></script><!--/ASSET:kjs-->
 </body>
 </html>

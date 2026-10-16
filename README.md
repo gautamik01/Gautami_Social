@@ -3,25 +3,28 @@
 Interactive studies of cities, built from coursework and personal projects.
 Live site: https://gautamik01.github.io/Gautami_Social/
 
-## Portals
+## Published portals
 
-| Portal | Course | Tools |
+| Portal | From | Live page |
 |---|---|---|
-| [Do evictions and building violations cluster in Philly?](projects/musa-5500-python/assignment-3-evictions-ndvi/overlap/) | MUSA 5500, Python | pandas, GeoPandas, D3 |
+| Did evictions and building violations cluster in Philly from 2012 to 2016? | MUSA 5500, Lab 3 | [portals/evictions-and-violations-2012-2016.html](portals/evictions-and-violations-2012-2016.html) |
+| Did Philly's eviction pattern change from 2003 to 2016? | MUSA 5500, Lab 3 | [portals/eviction-patterns-2003-2016.html](portals/eviction-patterns-2003-2016.html) |
 
-## How the repo is organized
+## What lives where
 
 ```
-assets/        shared colors, fonts and the D3 library
-templates/      portal templates, one folder each (see templates/README.md)
-projects/      one folder per course, one subfolder per lab or project
-posts/         LinkedIn captions
-raw-data/      big original datasets, kept on my computer only (git ignores it)
+index.html      the landing page (one card per portal)
+portals/        every published page, one HTML file each   <- edit titles and text here
+data/           the data file each portal reads
+projects/       source material, one folder per project (notebooks, notes)
+posts/          LinkedIn captions, one per portal
+templates/      reusable page designs (see templates/README.md)
+assets/         shared fonts and colors (style.css) and the D3 library
 ```
 
-## Making a new portal
+## Editing a page yourself
 
-Pick a template in `templates/` (see templates/README.md) and follow its `TEMPLATE.md`.
-In Claude, say "use my Overlap Map template". The skill behind that is backed up in `templates/SKILL.md`.
+Open the page in `portals/`, look for the `EDIT ME` notes, change the words, commit.
+The live site updates about a minute later.
 
 Built with AI assistance (Claude) after each assignment was submitted and graded.

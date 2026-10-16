@@ -1,5 +1,5 @@
 // Gautami's map-portal kit.
-// One map of places colored by whether two measures (A and B) are both high, plus a scatter "test".
+// One map of places colored by whether two measures (A and B) are both high (or two linked maps side by side), plus a scatter "test".
 // A page supplies window.PORTAL_DATA (GeoJSON-like features) and window.PORTAL_CONFIG (names, periods, groups).
 // See templates/overlap-map/TEMPLATE.md for the data format and every config option.
 (function () {
@@ -56,6 +56,13 @@
   const ink = c => c === 0 ? "#3f4e66" : d3.color(COL[c]).darker(c === 3 ? 0.3 : 1.4) + "";
   const pill = c => `style="background:${tint(c)};color:${ink(c)}"`;
   const fillFor = i => SINGLE ? rampScale(SM === "a" ? av[i] : bv[i]) : COL[cls[i]];
+  const SIDE = C.mode === "side";                            // two linked maps: A on the left, B on the right
+  const RAMP_A = d3.interpolateRgbBasis((C.colors && C.colors.rampA) || ["#e4edf7", "#b7d3ee", "#6fa8dc", "#2f6fb5", "#0b3c78"]);
+  const RAMP_B = d3.interpolateRgbBasis((C.colors && C.colors.rampB) || ["#fbe9d2", "#f9cf9c", "#f2a35c", "#d9631c", "#8f2d05"]);
+  let aScale = null, bScale = null;
+  const DOT_CLASSES = C.dots === "classes";                 // side mode: color scatter dots by the four classes
+  const dotFill = i => SIDE && !DOT_CLASSES ? (cls[i] === 3 ? COL[3] : "#c3cdda") : (SIDE ? COL[cls[i]] : fillFor(i));
+  const T = C.text || {};                                    // optional wording overrides for the big numbers
   const state = { period: "all", group: "ALL", pin: -1 };
 
   // ---------- values ----------
@@ -92,11 +99,22 @@
 
   // ---------- fixed text from the config ----------
   $("bHead").textContent = B.name;
-  $("placeHead").textContent = cap(PL.one);
-  $("emptyCard").textContent = `Hover or tap any ${PL.one} on the map to see its numbers.`;
-  $("lBoth").textContent = `${PL.many} are high on both`;
-  $("lOver").textContent = `of the top ${A.lower} ${PL.many} are also top ${B.lower} ${PL.many}. Chance would give ${Math.round(100 * (1 - CUT))}%.`;
-  $("lCorr").textContent = "correlation, where 1 is a perfect match";
+  $("placeHead").hidden = true; $("emptyCard").hidden = true;   // no hint text: the card simply appears on hover or tap
+  $("lBoth").textContent = T.both || `${PL.many} are high on both`;
+  const adj = m => m.adj || m.lower.replace(/s$/, "");      // "evictions" -> "eviction" (set a.adj / b.adj to override)
+  $("lOver").textContent = (T.over || `of the top ${adj(A)} ${PL.many} are also top ${adj(B)} ${PL.many}.`) + ` Chance would give ${Math.round(100 * (1 - CUT))}%.`;
+  $("lCorr").textContent = T.corr || "correlation, where 1 is a perfect match";
+  if (T.sub) document.querySelector(".scatter .sub").textContent = T.sub;
+
+  // ---------- optional context chart in the left rail (config.trend) ----------
+  if (C.trend) {
+    const tr = C.trend, mx = d3.max(tr.values);
+    const col = k => (tr.highlightA || []).includes(k) ? "var(--ev)" : (tr.highlightB || []).includes(k) ? "var(--vi)" : "var(--line-2)";
+    const blk = document.createElement("div"); blk.className = "block";
+    blk.innerHTML = `<span class="k">${tr.title}</span><div class="trend">${tr.keys.map((k, j) => `<div title="${k}: ${fmt(tr.values[j])}"><i style="height:${Math.max(3, 100 * tr.values[j] / mx)}%;background:${col(k)}"></i></div>`).join("")}</div>` +
+      `<div class="trendx"><span>${tr.keys[0]}</span><span>${tr.keys[tr.keys.length - 1]}</span></div>` + (tr.note ? `<p class="note">${tr.note}</p>` : "");
+    $("periodBlock").parentElement.prepend(blk);
+  }
   if (!B.groups) $("bBlock").hidden = true;
 
   // ---------- period rail ----------
@@ -109,10 +127,22 @@
   const W = 600, H = 640;
   const proj = d3.geoMercator().fitExtent([[6, 6], [W - 6, H - 6]], { type: "FeatureCollection", features: feats });
   const geo = d3.geoPath(proj);
-  const svg = d3.select("#map").attr("viewBox", `0 0 ${W} ${H}`);
-  const paths = svg.append("g").selectAll("path").data(feats).join("path").attr("class", "tract").attr("d", geo).attr("fill", COL[0]);
-  const pinPath = svg.append("path").attr("class", "pinp");
-  const hlPath = svg.append("path").attr("class", "hl");
+  if (SIDE) {
+    const wrap = $("map").closest(".mapwrap"); wrap.classList.add("side");
+    const fig = (k, color) => `<figure class="sidemap"><h3><i style="background:${color}"></i><span id="mapTitle${k}"></span></h3><div class="mapbox"><svg id="map${k}" role="img" aria-label="Map of ${PL.many} shaded by ${(k === "A" ? A : B).lower}"></svg></div><div class="ramp" id="ramp${k}"></div></figure>`;
+    wrap.innerHTML = `<div class="sidemaps">${fig("A", "var(--ev)")}${fig("B", "var(--vi)")}</div>`;
+    if (!DOT_CLASSES) $("biv").closest(".block").hidden = true;
+  }
+  function makeMap(id, fill) {
+    const svg = d3.select("#" + id).attr("viewBox", `0 0 ${W} ${H}`);
+    const paths = svg.append("g").selectAll("path").data(feats).join("path").attr("class", "tract").attr("d", geo).attr("fill", COL[0]);
+    return { paths, pin: svg.append("path").attr("class", "pinp"), hl: svg.append("path").attr("class", "hl"), fill };
+  }
+  const maps = SIDE ? [makeMap("mapA", i => aScale(av[i])), makeMap("mapB", i => bScale(bv[i]))] : [makeMap("map", i => fillFor(i))];
+  // in side mode the A color range stays fixed across single periods, so playing the years shows real change
+  let A_PERIOD_MAX = 1;
+  if (SIDE && PERIODS) { const all = []; feats.forEach(f => PERIODS.forEach(k => all.push(aVal(f.properties, k)))); A_PERIOD_MAX = Math.max(1, d3.quantile(all, 0.98)); }
+  const rampHTML = (ramp, max) => `<div class="rbar" style="background:linear-gradient(90deg,${d3.range(0, 1.01, 0.1).map(t => `${ramp(t)} ${Math.round(t * 100)}%`).join(",")})"></div><div class="rnum"><span>0</span><span>${fmt(Math.round(max))}+</span></div>`;
 
   // ---------- B buttons ----------
   $("chips").innerHTML = KEYS.map(k => {
@@ -127,7 +157,7 @@
     CELLS.map(c => `<button type="button" class="cell ${d3.hsl(COL[c]).l < 0.5 ? "dark" : "light"}" data-c="${c}" style="background:${COL[c]}" aria-label="${VERDICT[c]}"><b>0</b><span>${VERDICT[c]}</span></button>`).join("") +
     `</div><span class="xlab">More ${B.lower} &rarr;</span>`;
   const cells = Array.from(document.querySelectorAll(".cell"));
-  const focusClass = c => paths.attr("opacity", (d, i) => c < 0 || cls[i] === c ? 1 : 0.15);
+  const focusClass = c => maps.forEach(m => m.paths.attr("opacity", (d, i) => c < 0 || cls[i] === c ? 1 : 0.15));
   cells.forEach(el => {
     const c = +el.dataset.c;
     el.addEventListener("pointerenter", () => focusClass(c)); el.addEventListener("focus", () => focusClass(c));
@@ -147,6 +177,8 @@
   const yTitle = sc.append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("x", -(M.t + SH - M.b) / 2).attr("y", 14).attr("text-anchor", "middle");
   const fit = sc.append("line").attr("stroke", "#14213d").attr("stroke-dasharray", "6 5").attr("stroke-width", 1.6);
   const fitTxt = sc.append("text").attr("class", "fitlabel").text("Trend line");
+  const diag = sc.append("line").attr("stroke", "#9aa8bb").attr("stroke-width", 1.2).style("display", C.diagonal ? null : "none");
+  const diagTxt = sc.append("text").attr("class", "fitlabel").style("display", C.diagonal ? null : "none").text(C.diagonal && C.diagonal.label || "No change");
   const dots = sc.append("g").selectAll("circle").data(d3.range(N)).join("circle").attr("class", "dot").attr("r", 4.4);
   const ringH = sc.append("circle").attr("r", 8).attr("fill", "none").attr("stroke", "#14213d").attr("stroke-width", 2.4).style("display", "none").style("pointer-events", "none");
   const ringP = sc.append("circle").attr("r", 9.5).attr("fill", "none").attr("stroke", "#14213d").attr("stroke-width", 2.4).attr("stroke-dasharray", "4 3").style("display", "none").style("pointer-events", "none");
@@ -172,7 +204,17 @@
       const stops = d3.range(0, 1.01, 0.1).map(t => `${RAMP(t)} ${Math.round(t * 100)}%`).join(",");
       $("biv").innerHTML = `<div class="ramp"><span class="rname">${(SM === "a" ? A : B).name}</span><div class="rbar" style="background:linear-gradient(90deg,${stops})"></div><div class="rnum"><span>0</span><span>${fmt(Math.round(max))}+</span></div></div>`;
     }
-    paths.transition().duration(dur).attr("fill", (d, i) => fillFor(i));
+    if (SIDE) {
+      let aMax = state.period === "all" || !PERIODS ? Math.max(1, d3.quantileSorted(aSorted, 0.98)) : A_PERIOD_MAX;
+      let bMax = Math.max(1, d3.quantileSorted(bSorted, 0.98));
+      if (C.sameScale) { aMax = bMax = Math.max(aMax, bMax); }   // same units on both maps (then vs now)
+      aScale = d3.scaleSequentialSqrt(RAMP_A).domain([0, aMax]).clamp(true);
+      bScale = d3.scaleSequentialSqrt(RAMP_B).domain([0, bMax]).clamp(true);
+      $("mapTitleA").textContent = A.name + (periodText() ? ", " + periodText() : "");
+      $("mapTitleB").textContent = B.groups && state.group !== "ALL" ? B.name + ": " + bLabel(state.group).toLowerCase() : (B.groups ? bLabel("ALL") : B.name);
+      $("rampA").innerHTML = rampHTML(RAMP_A, aMax); $("rampB").innerHTML = rampHTML(RAMP_B, bMax);
+    }
+    maps.forEach(m => m.paths.transition().duration(dur).attr("fill", (d, i) => m.fill(i)));
 
     let nTop = 0, both = 0;
     for (let i = 0; i < N; i++) if (av[i] >= qA) { nTop++; if (bv[i] >= qB) both++; }
@@ -194,10 +236,15 @@
     gGrid.attr("transform", `translate(${M.l},0)`).call(d3.axisLeft(sy).ticks(5).tickSize(-(SW - M.l - M.r)).tickFormat(""));
     xTitle.text((B.groups ? bLabel(state.group) : B.name) + (B.xSuffix || ""));
     yTitle.text(A.name + (periodText() ? ", " + periodText() : ""));
-    dots.sort((x, y) => cls[x] - cls[y]).transition().duration(dur).attr("cx", i => sx(bv[i])).attr("cy", i => sy(av[i])).attr("fill", i => fillFor(i));
+    dots.sort((x, y) => cls[x] - cls[y]).transition().duration(dur).attr("cx", i => sx(bv[i])).attr("cy", i => sy(av[i])).attr("fill", i => dotFill(i));
     qBox.attr("x", sx(qB)).attr("y", M.t).attr("width", Math.max(0, SW - M.r - sx(qB))).attr("height", Math.max(0, sy(qA) - M.t));
     qTxt.attr("x", sx(qB) + 10).attr("y", M.t + 18);
     drawFit();
+    if (C.diagonal) {
+      const m = Math.min(sx.domain()[1], sy.domain()[1]);
+      diag.attr("x1", sx(0)).attr("y1", sy(0)).attr("x2", sx(m)).attr("y2", sy(m));
+      diagTxt.attr("x", sx(m * 0.62) - 6).attr("y", sy(m * 0.62) - 8).attr("text-anchor", "end");
+    }
     delaunay = d3.Delaunay.from(d3.range(N).map(i => [sx(bv[i]), sy(av[i])]));
 
     if (PERIODS) {
@@ -213,7 +260,7 @@
   const ctxFmt = (v, u) => v == null ? "n/a" : u === "$" ? "$" + fmt(v) : u === "%" ? v + "%" : fmt(v);
   function card(i, pinned) {
     const el = $("pop");
-    $("emptyCard").hidden = i >= 0; $("popClose").hidden = !pinned;
+    $("popClose").hidden = !pinned;
     if (i < 0) { el.hidden = true; return; }
     const p = feats[i].properties, c = cls[i], pa = pctBelow(aSorted, av[i]), pb = pctBelow(bSorted, bv[i]);
     const ctx = (C.context || []).map(x => `<div><dt>${x.label}</dt><dd>${ctxFmt(p[x.key], x.unit)}</dd></div>`).join("");
@@ -229,7 +276,7 @@
   const tip = $("tip");
   function setHover(i, evt) {
     hoverI = i; if (state.pin < 0) card(i, false);
-    hlPath.attr("d", geo(feats[i]));
+    const g = geo(feats[i]); maps.forEach(m => m.hl.attr("d", g));
     ringH.style("display", null).attr("cx", sx(bv[i])).attr("cy", sy(av[i]));
     tip.innerHTML = `<b>${nameFor(feats[i].properties)}</b><br><span class="verdict" style="margin:4px 0 6px;background:${tint(cls[i])};color:${ink(cls[i])}">${VERDICT[cls[i]]}</span><div class="row"><span>${A.name}</span><span class="num">${fmt(av[i])}</span></div><div class="row"><span>${B.name}</span><span class="num">${fmt(bv[i])}</span></div>`;
     tip.classList.add("on");
@@ -240,14 +287,14 @@
     if (left + w > innerWidth - 8) left = x - w - 16; if (top + h > innerHeight - 8) top = y - h - 16;
     tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
   }
-  function clearHover() { if (state.pin < 0) card(-1, false); hoverI = -1; hlPath.attr("d", null); ringH.style("display", "none"); tip.classList.remove("on"); }
+  function clearHover() { if (state.pin < 0) card(-1, false); hoverI = -1; maps.forEach(m => m.hl.attr("d", null)); ringH.style("display", "none"); tip.classList.remove("on"); }
   function drawPin() {
     const i = state.pin;
-    if (i < 0) { pinPath.attr("d", null); ringP.style("display", "none"); return; }
-    pinPath.attr("d", geo(feats[i])); ringP.style("display", null).attr("cx", sx(bv[i])).attr("cy", sy(av[i]));
+    if (i < 0) { maps.forEach(m => m.pin.attr("d", null)); ringP.style("display", "none"); return; }
+    const g = geo(feats[i]); maps.forEach(m => m.pin.attr("d", g)); ringP.style("display", null).attr("cx", sx(bv[i])).attr("cy", sy(av[i]));
   }
   function togglePin(i) { state.pin = state.pin === i ? -1 : i; drawPin(); card(state.pin >= 0 ? state.pin : (hoverI >= 0 ? hoverI : -1), state.pin >= 0); }
-  paths.on("pointerenter pointermove", (e, d) => setHover(feats.indexOf(d), e)).on("pointerleave", clearHover).on("click", (e, d) => togglePin(feats.indexOf(d)));
+  maps.forEach(m => m.paths.on("pointerenter pointermove", (e, d) => setHover(feats.indexOf(d), e)).on("pointerleave", clearHover).on("click", (e, d) => togglePin(feats.indexOf(d))));
   sc.on("pointermove", e => {
     const [mx, my] = d3.pointer(e, sc.node()), k = delaunay.find(mx, my);
     const dx = sx(bv[k]) - mx, dy = sy(av[k]) - my;
