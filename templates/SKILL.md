@@ -7,7 +7,7 @@ description: Use when Gautami says "use my ... template" (for example "use my Ov
 
 Turns one study into a clean, interactive page in Gautami's house style, published on GitHub Pages and shared on LinkedIn. Target: about 15 minutes from upload to live link.
 
-## Repo layout (keep it flat)
+## Repo layout (keep it simple)
 
 `index.html` landing page, `projects/NN-topic-years/` one folder per project (that folder is one live page), `templates/<name>/` master designs. Nothing else at the top level. Each project folder holds `index.html` (words and settings, with EDIT ME notes), `style.css`, the code file (`map.js`), `data.js`, `notebook.ipynb` and `linkedin.md`. Big raw data stays on her computer, outside the repo.
 
@@ -27,7 +27,9 @@ Get the repo by attaching it (add_repo, push access) and cloning. If that is not
 
 ## Treatment is open, layout is fixed
 
-The master template never changes for one project: edit the project's own copy instead. Each study picks its own colors, legend words, "high" cutoff and map mode through the page config (see GUIDE.md). Choose a treatment that fits the theme: water, heat, green, transit, housing. What stays fixed is the layout and voice, so the series reads as one body of work. If a study needs a new layout, build it by hand, then offer to save it as a new template with a two-word name for what the reader sees (Side-by-Side Map, Before-After Slider, Story Scroll).
+The master template never changes for one project: edit the project's own copy instead. Each study picks its own colors, legend words, "high" cutoff and map mode through the page config (see GUIDE.md). Choose a treatment that fits the theme: water, heat, green, transit, housing. What stays fixed is the layout and voice, so the series reads as one body of work. If a study needs a new layout, build it by hand, then offer to save it as a new template with a two-word name for what the reader sees (Before-After Slider, Story Scroll, Trend Dashboard).
+
+When one dataset feeds several projects, make each one answer a different question (for example: do two things cluster, and did the pattern change over time), not the same finding in a new layout.
 
 ## Workflow
 
@@ -47,8 +49,8 @@ The master template never changes for one project: edit the project's own copy i
 - The visual is the hero: right after the title, about 88% of screen height.
 - Controls are soft and few: an icon-only round play button, soft pill lists, and only the chosen item filled. Line everything up with the title's left edge.
 - Big numbers sit beside the chart they explain, never under the title.
-- Borders only on the selected-place card. No boxes around numbers, no circle-outlined buttons, no long button labels, no text watermarks on the map.
-- Very little text. One term for each thing across the page. Plain words ("neighborhood", not "census tract") unless precision matters.
+- Borders only on the selected-place card. No boxes around numbers, no circle-outlined buttons, no long button labels, no text watermarks on the map, no hint text like "hover or tap".
+- Very little text. One term for each thing across the page. Plain words ("neighborhood", not "census tract") unless precision matters. Legend words must say exactly what they mean ("Became high", not "Heated up").
 - Title: a short, slightly playful question with the years it covers. Lede: "Let's test it." plus what to do.
 - Her name links to https://www.linkedin.com/in/gautamikasat. Her portfolio is not public yet, so do not link it.
 - "How it was made" lists tools as pills (Analysis, Portal, Data) and credits Claude. Fine print says what a place is, the years, and "a pattern, not proof of cause."
