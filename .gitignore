@@ -1,5 +1,6 @@
 # Big original data stays on your computer only
 raw-data/
+# (keep big original data outside this folder if you can)
 
 # Jupyter and system junk
 .ipynb_checkpoints/
@@ -15,5 +16,5 @@ secrets*
 
 # Big files GitHub rejects (over 100 MB) or that don't belong online
 *.zip
-posts/*.mp4
-posts/*.mov
+*.mp4
+*.mov

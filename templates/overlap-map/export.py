@@ -3,7 +3,7 @@ Export a GeoDataFrame into the data file a map portal reads (window.PORTAL_DATA)
 
 Run this at the end of a lab notebook, or paste the function into a cell.
 
-    from portal_export import export_portal
+    from export import export_portal
     export_portal(
         gdf,                                   # one row per place (tract, block group, ...)
         id_col="GEOID",

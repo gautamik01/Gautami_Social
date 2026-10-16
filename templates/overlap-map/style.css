@@ -1,0 +1,308 @@
+/* How the page looks. Fonts and colors first, then the layout of the map page. */
+
+/* Shared look for every portal in this repo.
+   Light, paper-white. Change a token here and all portals update together. */
+
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --soft: #f4f6fa;
+  --card: #ffffff;
+  --line: #d9e0ea;
+  --line-2: #bcc7d6;
+  --ink: #14213d;        /* text and buttons */
+  --ink-2: #3f4e66;
+  --muted: #5b6a81;
+  --ev: #2f6fb5;         /* evictions (blue) */
+  --ev-soft: #6fa8dc;
+  --vi: #d9631c;         /* violations (orange) */
+  --vi-soft: #f2a35c;
+  --both: #5a1a63;       /* high on both (plum) */
+  --none: #dfe5ee;
+  --focus: #1a6bff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+a { color: var(--ev); text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- header ---------- */
+.site-head { padding-top: 34px; padding-bottom: 8px; }
+.site-head .byline { color: var(--muted); font-size: 0.92rem; margin: 0 0 10px; }
+.site-head h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2rem, 4.8vw, 3.2rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+.site-head .lede { color: var(--ink-2); max-width: 60ch; margin: 0; font-size: 1.1rem; }
+
+.key { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 16px 0 0; font-size: 0.92rem; color: var(--ink-2); font-weight: 500; }
+.key span.sw, .sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 7px; }
+.sw.ev { background: var(--ev); }
+.sw.vi { background: var(--vi); }
+.sw.both { background: var(--both); }
+
+/* ---------- panels and buttons ---------- */
+.panel {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.panel h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin: 0 0 2px;
+  letter-spacing: -0.01em;
+}
+.panel .sub { color: var(--muted); font-size: 0.88rem; margin: 0 0 12px; }
+
+.btn {
+  font: inherit; font-weight: 600; font-size: 0.98rem;
+  min-height: 46px; padding: 0 20px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  border: 2px solid var(--ink); border-radius: 12px;
+  background: #fff; color: var(--ink); cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.12s, background 0.12s;
+}
+.btn:hover { box-shadow: 0 3px 0 var(--ink); transform: translateY(-1px); }
+.btn:active { transform: none; box-shadow: none; }
+.btn.primary { background: var(--ink); color: #fff; }
+.btn.primary:hover { background: #22345c; }
+.btn.small { min-height: 36px; padding: 0 14px; font-size: 0.86rem; border-radius: 9px; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+
+.seg { display: inline-flex; flex-wrap: wrap; border: 2px solid var(--ink); border-radius: 13px; overflow: hidden; background: #fff; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label {
+  display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+  font-weight: 600; font-size: 0.95rem; color: var(--ink); cursor: pointer; user-select: none;
+  border-right: 2px solid var(--ink); transition: background 0.1s;
+}
+.seg label:last-of-type { border-right: 0; }
+.seg label:hover { background: #e9effa; }
+.seg input:checked + label { background: var(--ink); color: #fff; }
+.seg input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: -3px; }
+.seg label svg { width: 18px; height: 18px; flex: none; }
+
+/* ---------- tooltip ---------- */
+.tip {
+  position: fixed; z-index: 30; pointer-events: none;
+  background: #fff; color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 10px;
+  padding: 9px 12px; font-size: 0.86rem; line-height: 1.45; max-width: 240px;
+  box-shadow: 0 10px 28px rgba(20, 33, 61, 0.22);
+  opacity: 0; transition: opacity 0.08s;
+}
+.tip.on { opacity: 1; }
+.tip b { font-family: var(--display); font-weight: 600; font-size: 1rem; }
+.tip .row { display: flex; justify-content: space-between; gap: 16px; }
+.tip .row span:first-child { color: var(--ink-2); }
+.tip .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* ---------- footer ---------- */
+.site-foot { padding-top: 30px; padding-bottom: 56px; color: var(--muted); font-size: 0.9rem; }
+.site-foot p { max-width: 78ch; margin: 0 0 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+
+/* Gautami's map-portal kit: shared layout for every "overlap" portal.
+   Layout: short title, then the map as a full-width hero with soft controls in the side rails
+   (periods + B groups on the left, selected place + 2x2 legend on the right), then "the test"
+   (scatter + trend line with the big numbers beside it), then "How it was made".
+   Borders are rare on purpose: only the selected-place card has one.
+   Colors and fonts are defined at the top of this file. */
+
+.top { padding-top: 28px; }
+.top.wrap, main.wrap, .made.wrap { max-width: 1340px; }
+.top .me { margin: 0 0 14px; font-size: 0.95rem; font-weight: 600; }
+.top .me a { color: var(--ink); text-decoration-color: var(--line-2); }
+.top h1 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.04; margin: 0; max-width: 22ch; text-wrap: balance; }
+.top .lede { margin: 12px 0 0; font-size: 1.12rem; color: var(--ink-2); max-width: 60ch; }
+
+.k { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 10px; }
+.note { margin: 12px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.45; max-width: 30ch; }
+
+/* ---------- hero band: rail | map | rail ---------- */
+.band { margin-top: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band-in { max-width: 1308px; margin: 0 auto; display: grid; grid-template-columns: 236px minmax(0, 1fr) 270px; gap: 28px; align-items: stretch; }
+.rail { display: flex; flex-direction: column; gap: 40px; padding-top: 8px; padding-bottom: 8px; min-width: 0; }
+.rail.right { justify-content: space-between; }
+.empty { margin: 0; font-size: 0.95rem; color: var(--muted); max-width: 26ch; }
+.mapwrap { position: relative; min-width: 0; }
+.mapbox { position: relative; aspect-ratio: 600 / 640; height: min(88vh, 900px); width: auto; max-width: 100%; margin: 0 auto; touch-action: pan-y; }
+.mapbox svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tract { stroke: #fff; stroke-width: 0.7; transition: fill 0.35s, opacity 0.25s; cursor: pointer; }
+.hl { fill: none; stroke: var(--ink); stroke-width: 2.6; pointer-events: none; stroke-linejoin: round; }
+.pinp { fill: none; stroke: var(--ink); stroke-width: 3.6; stroke-dasharray: 7 4; pointer-events: none; stroke-linejoin: round; }
+.tapchip { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); z-index: 2; pointer-events: none; background: var(--ink); color: #fff; font-weight: 600; font-size: 0.85rem; padding: 7px 14px; border-radius: 99px; transition: opacity 0.4s; white-space: nowrap; }
+.tapchip.gone { opacity: 0; }
+
+/* years: a soft vertical rail, only the chosen year is filled */
+.yearhead { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.yearhead .k { margin: 0; }
+.playbtn { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; display: grid; place-items: center; cursor: pointer; transition: background 0.15s, transform 0.08s; }
+.playbtn:hover { background: #22345c; transform: scale(1.05); }
+.playbtn svg { width: 18px; height: 18px; }
+.playbtn[aria-pressed="true"] { background: var(--both); }
+.years { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.years input { position: absolute; opacity: 0; pointer-events: none; }
+.years label { padding: 7px 14px; border-radius: 99px; font-weight: 600; font-size: 1rem; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.15s, color 0.15s; font-variant-numeric: tabular-nums; }
+.years label:hover { color: var(--ink); background: var(--soft); }
+.years input:checked + label { background: var(--ink); color: #fff; }
+.years input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* legend: a 2 x 2 square that explains the colors */
+.biv { display: grid; grid-template-columns: 22px auto; grid-template-rows: auto 20px; gap: 6px; width: max-content; }
+.biv .ylab { grid-row: 1; grid-column: 1; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.78rem; font-weight: 600; color: var(--ink-2); text-align: center; }
+.biv .xlab { grid-row: 2; grid-column: 2; font-size: 0.78rem; font-weight: 600; color: var(--ink-2); text-align: center; }
+.biv .grid { grid-row: 1; grid-column: 2; display: grid; grid-template-columns: 70px 70px; grid-template-rows: 70px 70px; gap: 4px; }
+.cell { border: 0; border-radius: 10px; cursor: default; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 7px 8px; font: inherit; text-align: left; transition: transform 0.12s; }
+.cell:hover, .cell:focus-visible { transform: scale(1.06); }
+.cell b { font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.cell span { font-size: 0.68rem; font-weight: 600; line-height: 1.15; margin-top: 2px; }
+.cell.dark { color: #fff; }
+.cell.light { color: var(--ink); }
+.ramp { width: 220px; }
+.ramp .rname { display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.ramp .rbar { height: 12px; border-radius: 6px; }
+.ramp .rnum { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+/* violations: soft chips, the chosen one is tinted */
+.chips { display: grid; gap: 4px; }
+.chip {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  width: 100%; text-align: left; font: inherit; color: var(--ink-2); background: transparent; border: 0; border-radius: 99px;
+  padding: 7px 12px; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.chip:hover { background: var(--soft); color: var(--ink); }
+.chip svg { width: 17px; height: 17px; display: block; }
+.chip .nm { font-weight: 600; font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip .r { font-family: var(--display); font-weight: 700; font-size: 0.86rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.chip[aria-pressed="true"] { background: #f1e5f3; color: var(--both); }
+.chip[aria-pressed="true"] .r { color: var(--both); }
+
+/* the one bordered thing: tract pop-up */
+.pop { position: relative; width: 100%; background: #fff; border: 1.5px solid var(--ink); border-radius: 14px; padding: 14px; box-shadow: 0 14px 34px rgba(20, 33, 61, 0.2); }
+.pop[hidden] { display: none; }
+.pop .x { position: absolute; right: 8px; top: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--soft); color: var(--ink); font-size: 1.1rem; font-weight: 700; cursor: pointer; line-height: 1; }
+.pop .x:hover { background: #e6ebf3; }
+.pinned { font-family: var(--body); font-size: 0.7rem; font-weight: 600; background: var(--ink); color: #fff; border-radius: 99px; padding: 3px 8px; vertical-align: 4px; margin-left: 4px; }
+.tname { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; margin: 0 36px 0 0; }
+.verdict { display: inline-block; margin: 8px 0 10px; padding: 4px 11px; border-radius: 99px; font-weight: 600; font-size: 0.82rem; }
+.verdict.c3 { background: #f1e5f3; color: var(--both); }
+.verdict.c1 { background: #e3effa; color: #1c4f86; }
+.verdict.c2 { background: #fdeede; color: #8f3d0c; }
+.verdict.c0 { background: var(--soft); color: var(--ink-2); }
+.meter { margin-bottom: 10px; }
+.meter .mr { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 0.9rem; }
+.meter .mr b { font-family: var(--display); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.mbar { height: 8px; background: var(--none); border-radius: 4px; margin: 3px 0 2px; position: relative; }
+.mbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; min-width: 3px; }
+.meter small { color: var(--muted); font-size: 0.78rem; }
+.ctxl { margin: 4px 0 0; display: grid; font-size: 0.85rem; }
+.ctxl div { display: flex; justify-content: space-between; padding: 4px 0; }
+.ctxl dt { color: var(--ink-2); }
+.ctxl dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- the test: regression with the numbers beside it ---------- */
+.test { margin-top: 64px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.test h2 { font-family: var(--display); font-weight: 700; font-size: 1.8rem; letter-spacing: -0.01em; margin: 0 0 2px; }
+.test .sub { color: var(--muted); font-size: 0.95rem; margin: 0 0 10px; }
+.scatter svg { display: block; width: 100%; height: auto; }
+.scatter .axis text { fill: var(--muted); font-size: 11px; font-family: var(--body); }
+.scatter .axis path, .scatter .axis line { stroke: var(--line-2); }
+.scatter .axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 600; font-family: var(--body); }
+.scatter .grid line { stroke: #edf1f6; }
+.scatter .grid path { display: none; }
+.dot { stroke: #fff; stroke-width: 1; transition: cx 0.3s, cy 0.3s, fill 0.2s; cursor: pointer; }
+.qlabel { font-size: 12px; font-weight: 700; font-family: var(--body); }
+.fitlabel { font-size: 12px; font-weight: 600; fill: var(--ink-2); font-family: var(--body); }
+.nums { display: grid; gap: 30px; padding-top: 64px; }
+.num b { display: block; font-family: var(--display); font-weight: 700; font-size: 3.2rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.num > span { display: block; margin-top: 6px; color: var(--ink-2); font-size: 1rem; max-width: 34ch; }
+.ybars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: end; height: 84px; max-width: 300px; }
+.ybars div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
+.ybars i { width: 100%; max-width: 30px; background: var(--line-2); border-radius: 5px 5px 0 0; display: block; transition: height 0.3s, background 0.2s; }
+.ybars i.on { background: var(--both); }
+.ybars span { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ybars em { font-style: normal; font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- how it was made ---------- */
+.made { margin-top: 64px; padding-bottom: 56px; }
+.made h2 { font-family: var(--display); font-weight: 600; font-size: 1.15rem; margin: 0 0 12px; }
+.toolrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+.toolrow .k { margin: 0; letter-spacing: 0; font-size: 0.82rem; font-weight: 600; width: 72px; flex: none; }
+.tool { font-size: 0.86rem; font-weight: 600; padding: 5px 12px; border-radius: 99px; background: var(--soft); color: var(--ink); }
+.made .fine { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); max-width: 80ch; }
+.made .links { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; font-weight: 600; font-size: 0.95rem; }
+
+/* ---------- smaller screens: rails move above and below the map ---------- */
+@media (max-width: 1150px) {
+  .band-in { grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+  .mapwrap { grid-column: 1 / -1; grid-row: 1; }
+  .mapbox { height: auto; width: 100%; max-width: 760px; }
+  .rail.left { grid-row: 2; }
+  .rail.right { grid-row: 2; justify-content: flex-start; }
+  .years { flex-direction: row; flex-wrap: wrap; }
+  .years label { margin-left: 0; }
+  .yearhead { max-width: none; justify-content: flex-start; gap: 14px; }
+  .test { grid-template-columns: 1fr; }
+  .nums { padding-top: 0; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .band-in { grid-template-columns: 1fr; }
+  .rail.left, .rail.right { grid-row: auto; }
+  .rail { gap: 28px; }
+  .nums { grid-template-columns: 1fr; }
+  .pop { box-shadow: none; }
+  .tapchip { font-size: 0.8rem; }
+  .toolrow .k { width: 100%; }
+}
+
+/* ---------- side-by-side mode: two linked maps in the hero band ---------- */
+.sidemaps { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.sidemap { margin: 0; min-width: 0; }
+.sidemap h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 8px; display: flex; align-items: center; gap: 9px; }
+.sidemap h3 i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+.sidemap .mapbox { height: auto; width: 100%; max-width: 100%; }
+.sidemap .ramp { width: 100%; max-width: 260px; margin-top: 8px; }
+@media (max-width: 700px) { .sidemaps { grid-template-columns: 1fr; } }
+
+/* optional context chart in the left rail (config.trend) */
+.trend { display: flex; align-items: flex-end; gap: 3px; height: 70px; max-width: 220px; }
+.trend div { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.trend i { display: block; width: 100%; border-radius: 3px 3px 0 0; }
+.trendx { display: flex; justify-content: space-between; max-width: 220px; font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }

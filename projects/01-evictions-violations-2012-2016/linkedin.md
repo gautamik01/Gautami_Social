@@ -1,6 +1,6 @@
 # LinkedIn draft: Lab 3, evictions and building violations
 
-Link: https://gautamik01.github.io/Gautami_Social/portals/evictions-and-violations-2012-2016.html
+Link: https://gautamik01.github.io/Gautami_Social/projects/01-evictions-violations-2012-2016/
 
 ---
 

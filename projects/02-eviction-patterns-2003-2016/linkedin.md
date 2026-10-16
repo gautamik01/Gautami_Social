@@ -1,6 +1,6 @@
 # LinkedIn draft: Did Philly's eviction pattern change from 2003 to 2016?
 
-Link: https://gautamik01.github.io/Gautami_Social/portals/eviction-patterns-2003-2016.html
+Link: https://gautamik01.github.io/Gautami_Social/projects/02-eviction-patterns-2003-2016/
 
 ---
 

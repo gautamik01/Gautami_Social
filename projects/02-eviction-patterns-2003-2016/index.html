@@ -9,8 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!--ASSET:css--><link rel="stylesheet" href="../assets/style.css"><!--/ASSET:css-->
-<!--ASSET:kcss--><link rel="stylesheet" href="../templates/overlap-map/portal.css"><!--/ASSET:kcss-->
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -77,15 +76,15 @@
   <div class="toolrow"><span class="k">Portal</span><span class="tool">D3.js</span><span class="tool">JavaScript</span><span class="tool">HTML and CSS</span><span class="tool">GitHub Pages</span><span class="tool">Claude</span></div>
   <div class="toolrow"><span class="k">Data</span><span class="tool">Eviction Lab, Princeton</span></div>
   <p class="fine">Neighborhoods are the city's 384 census tracts. Each map adds up three years of eviction filings. High means the top quarter of neighborhoods in that period. Rose or fell counts only places with at least 15 evictions in 2003 to 2005. A pattern, not proof of cause.</p>
-  <p class="links"><a href="evictions-and-violations-2012-2016.html">Evictions and building violations</a><a href="https://github.com/gautamik01/Gautami_Social/blob/main/projects/musa5500-lab3-evictions/notebook.ipynb" target="_blank" rel="noopener">Read the notebook</a></p>
+  <p class="links"><a href="../01-evictions-violations-2012-2016/">Evictions and building violations</a><a href="https://github.com/gautamik01/Gautami_Social/blob/main/projects/02-eviction-patterns-2003-2016/notebook.ipynb" target="_blank" rel="noopener">Read the notebook</a></p>
 </footer>
 
 <div class="tip" id="tip" role="tooltip"></div>
 
-<!--ASSET:d3--><script src="../assets/d3.min.js"></script><!--/ASSET:d3-->
-<!--ASSET:data--><script src="../data/eviction-patterns.js"></script><!--/ASSET:data-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
 <script>
-// Everything specific to this study lives here. See templates/overlap-map/TEMPLATE.md for every option.
+// EDIT ME (carefully): everything specific to this study. Every option is explained in templates/overlap-map/GUIDE.md.
 window.PORTAL_CONFIG = {
   "mode": "side",
   "dots": "classes",
@@ -201,6 +200,6 @@ window.PORTAL_CONFIG = {
   ]
 };
 </script>
-<!--ASSET:kjs--><script src="../templates/overlap-map/portal.js"></script><!--/ASSET:kjs-->
+<script src="map.js"></script>
 </body>
 </html>

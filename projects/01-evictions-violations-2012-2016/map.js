@@ -1,7 +1,8 @@
-// Gautami's map-portal kit.
+// How the page behaves: the maps, buttons, legend, card and chart. Leave this file to Claude.
+// Gautami's Overlap Map template.
 // One map of places colored by whether two measures (A and B) are both high (or two linked maps side by side), plus a scatter "test".
 // A page supplies window.PORTAL_DATA (GeoJSON-like features) and window.PORTAL_CONFIG (names, periods, groups).
-// See templates/overlap-map/TEMPLATE.md for the data format and every config option.
+// See templates/overlap-map/GUIDE.md for the data format and every config option.
 (function () {
   "use strict";
   const D = window.PORTAL_DATA, C = window.PORTAL_CONFIG;

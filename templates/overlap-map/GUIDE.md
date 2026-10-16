@@ -1,6 +1,6 @@
 # Overlap Map
 
-Portal template 1. Say "use my Overlap Map template". One hero map where two measures meet, two linked maps side by side (`mode: "side"`), or one measure on a gradient (`mode: "single"`). Examples: `portals/evictions-and-violations-2012-2016.html` (overlap) and `portals/eviction-patterns-2003-2016.html` (side by side, then vs now).
+Portal template 1. Say "use my Overlap Map template". One hero map where two measures meet, two linked maps side by side (`mode: "side"`), or one measure on a gradient (`mode: "single"`). Examples: `projects/01-evictions-violations-2012-2016/` (overlap) and `projects/02-eviction-patterns-2003-2016/` (side by side, then vs now).
 
 Goal: one lab or project becomes a clean, interactive page in about 15 minutes.
 
@@ -18,11 +18,11 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 | Part | What it holds | Rules |
 |---|---|---|
 | Name | "Gautami Kasat", links to LinkedIn | Nothing else above the title |
-| Title | The study as a short, slightly playful question | Example: "Do evictions and building violations cluster in Philly?" |
+| Title | The study as a short, slightly playful question with its years | Example: "Did Philly's eviction pattern change from 2003 to 2016?" |
 | Lede | One line: "Let's test it." plus what to do | No method talk |
 | Hero map band | Left rail, map, right rail | The map is the hero, about 88% of screen height |
 | Left rail (choose) | Round play button, period list, B buttons with match numbers, one short note | Soft pills, only the chosen item is filled |
-| Right rail (read) | "Neighborhood" card (hover previews, click pins), 2×2 color legend at the bottom | The card is the only bordered element on the page |
+| Right rail (read) | Place card (hover previews, click pins, no hint text), 2×2 color legend at the bottom | The card is the only bordered element on the page |
 | The test | Scatter with trend line (left), big numbers (right): both-high count, overlap %, correlation, per-period bars | Big numbers live here, never under the title |
 | How it was made | Tool pills for Analysis, Portal and Data, one fine-print line, links | Fine print says what a place is, the years, and "a pattern, not proof of cause" |
 
@@ -35,15 +35,18 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 - Leave out sensitive fields (for example the poverty rate) from cards unless the study is about them.
 - No watermark text on the map. No em dashes in any copy.
 
-## Files
+## Files (this folder is the master; each project gets its own copy)
 
-| File | Job |
-|---|---|
-| `assets/style.css` | Colors, fonts, buttons, tooltip (shared by every portal) |
-| `templates/overlap-map/portal.css` | Page layout: hero band, rails, chips, legend, card, test section |
-| `templates/overlap-map/portal.js` | All behavior. Reads `window.PORTAL_DATA` and `window.PORTAL_CONFIG` |
-| `templates/overlap-map/starter.html` | Page skeleton with `{{TOKENS}}` to fill |
-| `templates/overlap-map/portal_export.py` | Turns a GeoDataFrame into the data file |
+| File | Job | Who edits it |
+|---|---|---|
+| `index.html` | The page: title, text, settings (`PORTAL_CONFIG`), with `{{TOKENS}}` to fill | You, freely (look for `EDIT ME`) |
+| `style.css` | How it looks: fonts, colors, layout | Rarely, for look tweaks |
+| `map.js` | How it behaves: maps, buttons, legend, card, chart | Claude |
+| `export.py` | Turns a GeoDataFrame into the project's `data.js` | Used in the notebook |
+| `GUIDE.md` | This guide | |
+
+A new project is this folder copied to `projects/NN-topic-years/`, plus its own `data.js`, `notebook.ipynb` and `linkedin.md`.
+Changing a project's copy never changes the master. Improve the master only when a change should apply to future projects.
 
 ## Data format (`window.PORTAL_DATA`)
 
@@ -58,7 +61,7 @@ Each place is colored by whether A, B, both or neither are in the city's top qua
 }
 ```
 
-Make it with `templates/overlap-map/portal_export.py` at the end of the notebook. Keep it under about 1.5 MB.
+Make it with `export.py` at the end of the notebook. Keep it under about 1.5 MB.
 
 ## Config (`window.PORTAL_CONFIG`)
 
@@ -100,14 +103,15 @@ Group B into 3 to 5 plain-language kinds. Never list 10 or more buttons.
 
 ## The 15-minute workflow
 
-1. **Upload** the notebook (and the zip, or just the files it reads) and say: "Use my portal template. A is ..., B is ..."
+1. **Upload** the notebook (and the zip, or just the files it reads) and say: "Use my Overlap Map template. A is ..., B is ..."
 2. **Check the data** (2 min): only the years both measures share, no secrets or private paths, notebook numbers recomputed.
-3. **Export** (3 min): `portal_export.py` writes `data/<page-name>.js`. The notebook goes in `projects/<project-name>/`.
-4. **Fill** (5 min): copy `templates/overlap-map/starter.html` to `portals/<page-name>.html`, then fill the tokens and config.
-5. **Preview** (3 min): test it in a browser and share a private preview link.
-6. **Publish** (2 min): add a card to the root `index.html` and a row to `README.md`, write the LinkedIn caption in `posts/`, then commit and push.
+3. **Copy** (1 min): copy `templates/overlap-map/` to `projects/NN-topic-years/` (next number, topic, years). Delete `GUIDE.md` and `export.py` from the copy.
+4. **Export** (3 min): `export.py` writes the copy's `data.js`. Add the notebook as `notebook.ipynb`.
+5. **Fill** (5 min): fill the tokens and `PORTAL_CONFIG` in the copy's `index.html`.
+6. **Preview** (2 min): test it in a browser and share a private preview link.
+7. **Publish** (2 min): add a card to the root `index.html`, write `linkedin.md`, then commit and push.
 
-## When the kit does not fit
+## When the template does not fit
 
 - **One measure only, with no comparison:** keep the hero band and rails, color by a single blue ramp, and drop the 2×2 legend and the test section.
 - **Points instead of areas** (trees, stops, crashes): aggregate the points to tracts first, then use the kit as-is.
